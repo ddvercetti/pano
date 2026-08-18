@@ -1,4 +1,4 @@
-const CACHE = "pano-v1";
+const CACHE = "pano-v2";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -12,12 +12,15 @@ self.addEventListener("activate", e => {
 });
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
-  if (url.hostname.includes("open-meteo.com")) return;   // hava: her zaman ağdan
+  if (url.hostname.includes("open-meteo.com")) return;      // hava: doğrudan ağ
+  // ÖNCE AĞ: güncel sürümü çek ve önbelleği tazele; ağ yoksa önbellekten çalış
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(r => {
+    fetch(e.request).then(r => {
       const copy = r.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return r;
-    }).catch(() => caches.match("./index.html")))
+    }).catch(() =>
+      caches.match(e.request).then(hit => hit || caches.match("./index.html"))
+    )
   );
 });
