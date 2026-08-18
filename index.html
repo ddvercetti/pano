@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutin Panosu</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d1117">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#0d1117;
+    font-family:'Segoe UI','DejaVu Sans',Arial,sans-serif; color:#e6edf3;
+    -webkit-user-select:none; user-select:none; cursor:none; }
+  #app { display:flex; width:100%; height:100%; }
+
+  /* ---- SOL PANEL ---- */
+  #left { width:39%; height:100%; padding:2.2vh 2vw; display:flex; flex-direction:column;
+    background:linear-gradient(160deg,#16213e,#0d1117 70%); border-right:1px solid #21262d; }
+  #clock { font-size:9.5vh; font-weight:800; line-height:1; letter-spacing:0.02em; }
+  #date { font-size:2.6vh; color:#8b949e; margin-top:0.6vh; }
+  #wx { font-size:2.2vh; color:#8b949e; margin-top:1vh; }
+  #moonZone { margin-top:3vh; text-align:center; }
+  #moonBig { font-size:13vh; line-height:1; }
+  #moonTxt { font-size:2.3vh; color:#8b949e; margin-top:0.8vh; }
+  #sun { font-size:2.2vh; color:#8b949e; margin-top:0.5vh; }
+  #mealInfo { font-size:2.4vh; color:#d4a017; margin-top:1.4vh; line-height:1.4; }
+  #mealInfo b { color:#e8c766; }
+  #nowLabel { margin-top:3.2vh; display:inline-block; }
+  #nowLabel span { background:#e6edf3; color:#0d1117; font-size:2vh; font-weight:800;
+    padding:0.5vh 1vw; border-radius:0.8vh; letter-spacing:0.12em; }
+  #nowName { font-size:5.6vh; font-weight:800; line-height:1.12; margin-top:1.2vh; }
+  #remain { font-size:2.9vh; color:#ffa657; font-weight:700; margin-top:1vh; }
+  #barWrap { margin-top:1.6vh; height:2.4vh; background:#21262d; border-radius:1.2vh; overflow:hidden; }
+  #bar { height:100%; width:0%; background:linear-gradient(90deg,#238636,#2ea043); border-radius:1.2vh;
+    transition:width 1s linear; }
+  #nexts { margin-top:auto; padding-top:2vh; }
+  .nx { font-size:2.5vh; color:#8b949e; padding:0.7vh 0; }
+  .nx b { color:#e6edf3; font-weight:600; }
+  #prog { font-size:2.2vh; color:#484f58; margin-top:1.2vh; }
+
+  /* ---- SAĞ LİSTE ---- */
+  #right { flex:1; height:100%; padding:1.6vh 1.4vw; overflow:hidden;
+    display:flex; flex-direction:column; }
+  #rTitle { font-size:2vh; font-weight:800; letter-spacing:0.14em; color:#484f58; padding:0 0 1vh 0.6vw; }
+  #list { flex:1; display:flex; flex-direction:column; gap:0.45vh; }
+  .blk { flex:1 1 0; min-height:0; display:grid; grid-template-columns:6.5vw 1fr auto;
+    align-items:center; padding:0 1vw; border-radius:0.9vh;
+    background:#161b22; border-left:0.45vw solid #30363d; }
+  .blk .t { font-size:2.3vh; font-weight:800; color:#8b949e; font-variant-numeric:tabular-nums; }
+  .blk .n { font-size:2.4vh; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .blk .d { font-size:1.9vh; color:#484f58; font-variant-numeric:tabular-nums; }
+  .blk.meal  { border-left-color:#d4a017; }
+  .blk.work  { border-left-color:#2ea043; }
+  .blk.train { border-left-color:#f85149; }
+  .blk.sleep { border-left-color:#d0703f; }
+  .blk.past { opacity:0.32; }
+  .blk.now { background:#e6edf3; }
+  .blk.now .t, .blk.now .n { color:#0d1117; }
+  .blk.now .d { color:#57606a; }
+
+  /* ---- GECE MODU ---- */
+  body.night #app { display:none; }
+  #nightView { display:none; }
+  body.night #nightView { display:flex; width:100%; height:100%;
+    flex-direction:column; align-items:center; justify-content:center; background:#000; }
+  #nMoon { font-size:9vh; opacity:0.5; margin-bottom:1vh; }
+  #nClock { font-size:16vh; font-weight:200; color:#3d444d; letter-spacing:0.04em; }
+  #nInfo { font-size:3vh; color:#21262d; margin-top:2vh; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left">
+    <div id="clock">--:--</div>
+    <div id="date">—</div>
+    <div id="wx">—</div>
+    <div id="sun">—</div>
+    <div id="nowLabel"><span>ŞİMDİ</span></div>
+    <div id="nowName">—</div>
+    <div id="remain">—</div>
+    <div id="barWrap"><div id="bar"></div></div>
+    <div id="moonZone">
+      <div id="moonBig">—</div>
+      <div id="moonTxt">—</div>
+    </div>
+    <div id="mealInfo">—</div>
+    <div id="nexts">
+      <div class="nx" id="nx1">—</div>
+      <div class="nx" id="nx2">—</div>
+      <div id="prog">—</div>
+    </div>
+  </div>
+  <div id="right">
+    <div id="rTitle">GÜNLÜK PLAN · GECE DÜZENİ</div>
+    <div id="list"></div>
+  </div>
+</div>
+<div id="nightView">
+  <div id="nMoon">🌙</div>
+  <div id="nClock">--:--</div>
+  <div id="nInfo">—</div>
+</div>
+
+<script>
+// ===== PLAN (gece düzeni · gün 02:00'de başlar) =====
+const SCHEDULE = [
+  { s:"02:00", n:"Uyanış & Hazırlık", c:"" },
+  { s:"02:10", n:"Öğün", c:"meal" },
+  { s:"02:40", n:"Sanayiye Gidiş", c:"" },
+  { s:"03:00", n:"İş — Sanayi", c:"work" },
+  { s:"05:00", n:"Ara Öğün · Kahve", c:"meal" },
+  { s:"05:15", n:"İş — Sanayi", c:"work" },
+  { s:"09:00", n:"Ertesi Gün Planı", c:"work" },
+  { s:"10:00", n:"Sipariş & Malzeme", c:"work" },
+  { s:"12:00", n:"Eve Dönüş & Ana Öğün", c:"meal" },
+  { s:"13:00", n:"PC Çalışması", c:"work" },
+  { s:"15:00", n:"2. Ara Öğün", c:"meal" },
+  { s:"15:15", n:"PC Çalışması", c:"work" },
+  { s:"16:00", n:"Serbest / Dinlenme", c:"" },
+  { s:"17:00", n:"Ağırlık + Kardiyo", c:"train", split:true },
+  { s:"17:45", n:"Duş & Son Öğün", c:"meal" },
+  { s:"18:00", n:"UYKU", c:"sleep" },
+];
+const REST_DAYS = [4, 0];   // JS getDay(): Paz=0, Per=4
+const DAY_START = 120;
+const DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+const MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+
+const toMin = s => { const [h,m]=s.split(":").map(Number); return h*60+m; };
+const norm = m => (m - DAY_START + 1440) % 1440;
+const starts = SCHEDULE.map(b => norm(toMin(b.s)));
+
+function blkName(i, wd){
+  let n = SCHEDULE[i].n;
+  if (SCHEDULE[i].split && REST_DAYS.includes(wd)) n = "Dinlenme (antr. yok)";
+  return n;
+}
+
+function getState(now){
+  const cur = norm(now.getHours()*60 + now.getMinutes());
+  const n = SCHEDULE.length;
+  let idx = n-1;
+  for (let i=0;i<n;i++){
+    const end = i+1<n ? starts[i+1] : 1440;
+    if (starts[i]<=cur && cur<end){ idx=i; break; }
+  }
+  const end = idx+1<n ? starts[idx+1] : 1440;
+  const wait = end - cur;
+  const dur = end - starts[idx];
+  const pct = dur>0 ? Math.min(100, Math.max(0,(cur-starts[idx])/dur*100)) : 0;
+  return { idx, wait, pct,
+    nxt1:(idx+1)%n, nxt2:(idx+2)%n,
+    sleeping: SCHEDULE[idx].n==="UYKU" };
+}
+
+function fmtWait(m){
+  const h=Math.floor(m/60), mm=m%60;
+  return h ? `Kalan: ${h} sa ${mm} dk` : `Kalan: ${mm} dk`;
+}
+
+let listBuilt = false;
+function buildList(){
+  const el = document.getElementById("list");
+  el.innerHTML = SCHEDULE.map((b,i)=>
+    `<div class="blk ${b.c}" id="b${i}">
+       <span class="t">${b.s}</span><span class="n">${b.n}</span>
+       <span class="d"></span>
+     </div>`).join("");
+  listBuilt = true;
+}
+
+function render(){
+  const now = new Date();
+  const wd = now.getDay();
+  const st = getState(now);
+  const hh = String(now.getHours()).padStart(2,"0");
+  const mm = String(now.getMinutes()).padStart(2,"0");
+
+  // Gece modu (uyku bloğu)
+  document.body.classList.toggle("night", st.sleeping);
+  if (st.sleeping){
+    document.getElementById("nClock").textContent = `${hh}:${mm}`;
+    const h=Math.floor(st.wait/60), m2=st.wait%60;
+    document.getElementById("nInfo").textContent = `Uyanış 02:00 · ${h} sa ${m2} dk`;
+    return;
+  }
+
+  if (!listBuilt) buildList();
+  document.getElementById("clock").textContent = `${hh}:${mm}`;
+  document.getElementById("date").textContent =
+    `${now.getDate()} ${MONTHS[now.getMonth()]} ${DAYS[wd]}`;
+  document.getElementById("nowName").textContent = blkName(st.idx, wd);
+  document.getElementById("remain").textContent = fmtWait(st.wait);
+  document.getElementById("bar").style.width = st.pct.toFixed(1)+"%";
+  document.getElementById("nx1").innerHTML =
+    `→ <b>${SCHEDULE[st.nxt1].s}</b> · ${blkName(st.nxt1, wd)}`;
+  document.getElementById("nx2").innerHTML =
+    `→ <b>${SCHEDULE[st.nxt2].s}</b> · ${blkName(st.nxt2, wd)}`;
+  document.getElementById("prog").textContent = `Bugün: ${st.idx}/${SCHEDULE.length} tamamlandı`;
+  updateMealInfo(st, wd);
+
+  SCHEDULE.forEach((b,i)=>{
+    const el = document.getElementById("b"+i);
+    el.querySelector(".n").textContent = blkName(i, wd);
+    el.classList.toggle("now", i===st.idx);
+    el.classList.toggle("past", i<st.idx);
+  });
+}
+
+// ===== Öğün içerikleri (mutfak talimatına göre · gün rotasyonlu) =====
+// JS getDay(): Paz=0 Pzt=1 Sal=2 Çar=3 Per=4 Cum=5 Cmt=6
+const LUNCH_ROT  = {1:"Tavuk",2:"Dana (yağlı)",3:"Hindi",4:"Somon",5:"Tavuk",6:"Dana (yağlı)",0:"Hindi"};
+const BF_S1_DAYS = [1,3,5,0];   // S1 günleri; diğerleri S2
+function mealContent(name, wd){
+  if (name === "Öğün")
+    return BF_S1_DAYS.includes(wd) ? "Karabuğdaylı omlet" : "Haşlanmış yumurtalı tabak";
+  if (name.startsWith("Ara Öğün"))
+    return "10 badem / 3 ceviz + yeşil çay";
+  if (name.includes("Ana Öğün"))
+    return `${LUNCH_ROT[wd]} + basmati + bol salata`;
+  if (name.startsWith("2. Ara"))
+    return "Muz veya elma";
+  if (name.includes("Son Öğün"))
+    return "Yoğurt + tarçın";
+  return null;
+}
+function updateMealInfo(st, wd){
+  const el = document.getElementById("mealInfo");
+  const curName = SCHEDULE[st.idx].n;
+  if (SCHEDULE[st.idx].c === "meal"){
+    el.innerHTML = `🍽 <b>Şimdi:</b> ${mealContent(curName, wd) || curName}`;
+    return;
+  }
+  // aktiften sonraki ilk öğünü bul
+  const n = SCHEDULE.length;
+  for (let k=1; k<n; k++){
+    const i = (st.idx + k) % n;
+    if (SCHEDULE[i].c === "meal"){
+      const w2 = i < st.idx ? (wd + 1) % 7 : wd;   // gece sarması → ertesi gün
+      el.innerHTML = `🍽 <b>${SCHEDULE[i].s}</b> ${SCHEDULE[i].n}: ${mealContent(SCHEDULE[i].n, w2) || ""}`;
+      return;
+    }
+  }
+  el.textContent = "";
+}
+
+// ===== Ay evresi (offline hesap) =====
+const SYNODIC = 29.53058867;
+const NEW_MOON_REF = Date.UTC(2000, 0, 6, 18, 14);   // bilinen yeni ay
+function moonPhase(now){
+  const age = ((now.getTime() - NEW_MOON_REF) / 86400000) % SYNODIC;
+  const illum = Math.round((1 - Math.cos(2*Math.PI*age/SYNODIC)) / 2 * 100);
+  const idx = Math.floor((age / SYNODIC) * 8 + 0.5) % 8;
+  const EMO   = ["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"];
+  const NAMES = ["Yeni Ay","Hilal","İlk Dördün","Şişkin Ay",
+                 "Dolunay","Şişkin Ay","Son Dördün","Balsamik Ay"];
+  return { emo: EMO[idx], name: NAMES[idx], illum };
+}
+function updateMoon(){
+  const m = moonPhase(new Date());
+  document.getElementById("moonBig").textContent = m.emo;
+  document.getElementById("moonTxt").textContent = `${m.name} · %${m.illum}`;
+  document.getElementById("nMoon").textContent = m.emo;
+}
+
+// ===== Hava (Open-Meteo · Alanya) =====
+function updateWx(){
+  fetch("https://api.open-meteo.com/v1/forecast?latitude=36.54&longitude=31.99&current=temperature_2m,relative_humidity_2m,apparent_temperature&daily=sunrise,sunset&forecast_days=1&timezone=Europe%2FIstanbul")
+    .then(r=>r.json())
+    .then(d=>{
+      const c=d.current;
+      document.getElementById("wx").textContent =
+        `Alanya ${Math.round(c.temperature_2m)}°C · hissedilen ${Math.round(c.apparent_temperature)}° · nem %${c.relative_humidity_2m}`;
+      if (d.daily && d.daily.sunrise){
+        const sr = d.daily.sunrise[0].slice(11,16);
+        const ss = d.daily.sunset[0].slice(11,16);
+        document.getElementById("sun").textContent = `🌅 ${sr} doğuş · 🌇 ${ss} batış`;
+      }
+    }).catch(()=>{});
+}
+
+// ===== PWA: service worker + ekranı uyanık tut =====
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+let wakeLock = null;
+async function keepAwake(){
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch(e){}
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") keepAwake();
+});
+document.addEventListener("click", keepAwake, { once:true });
+keepAwake();
+
+render();
+updateWx();
+updateMoon();
+setInterval(render, 1000);
+setInterval(updateWx, 30*60*1000);
+setInterval(updateMoon, 60*60*1000);
+</script>
+</body>
+</html>
