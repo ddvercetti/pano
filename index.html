@@ -54,6 +54,7 @@
   .blk.meal  { border-left-color:#d4a017; }
   .blk.work  { border-left-color:#2ea043; }
   .blk.train { border-left-color:#f85149; }
+  .blk.yoga { border-left-color:#a371f7; }
   .blk.sleep { border-left-color:#d0703f; }
   .blk.past { opacity:0.32; }
   .blk.now { background:#e6edf3; }
@@ -107,20 +108,19 @@
 // ===== PLAN (gece düzeni · gün 02:00'de başlar) =====
 const SCHEDULE = [
   { s:"02:00", n:"Uyanış & Hazırlık", c:"" },
-  { s:"02:10", n:"Öğün", c:"meal" },
-  { s:"02:40", n:"Sanayiye Gidiş", c:"" },
-  { s:"03:00", n:"İş — Sanayi", c:"work" },
-  { s:"05:00", n:"Ara Öğün · Kahve", c:"meal" },
-  { s:"05:15", n:"İş — Sanayi", c:"work" },
-  { s:"09:00", n:"Ertesi Gün Planı", c:"work" },
-  { s:"10:00", n:"Sipariş & Malzeme", c:"work" },
-  { s:"12:00", n:"Eve Dönüş & Ana Öğün", c:"meal" },
-  { s:"13:00", n:"PC Çalışması", c:"work" },
-  { s:"15:00", n:"2. Ara Öğün", c:"meal" },
-  { s:"15:15", n:"PC Çalışması", c:"work" },
-  { s:"16:00", n:"Serbest / Dinlenme", c:"" },
-  { s:"17:00", n:"Ağırlık + Kardiyo", c:"train", split:true },
-  { s:"17:45", n:"Duş & Son Öğün", c:"meal" },
+  { s:"02:30", n:"Atölye 1'e Gidiş", c:"" },
+  { s:"03:00", n:"İş — Atölye 1", c:"work" },
+  { s:"03:30", n:"Kahvaltı", c:"meal" },
+  { s:"03:45", n:"İş — Atölye 1", c:"work" },
+  { s:"11:00", n:"Eve Dönüş", c:"" },
+  { s:"11:30", n:"Ana Yemek", c:"meal" },
+  { s:"12:00", n:"Vinyasa / Yoga", c:"yoga" },
+  { s:"13:00", n:"PC / Serbest", c:"work" },
+  { s:"14:00", n:"Akşam Yemeği", c:"meal" },
+  { s:"14:30", n:"PC / Serbest", c:"work" },
+  { s:"16:00", n:"Ağırlık + Kardiyo", c:"train", split:true },
+  { s:"16:45", n:"Duş", c:"" },
+  { s:"17:00", n:"Serbest / Dinlenme", c:"" },
   { s:"18:00", n:"UYKU", c:"sleep" },
 ];
 const REST_DAYS = [4, 0];   // JS getDay(): Paz=0, Per=4
@@ -212,18 +212,15 @@ function render(){
 // ===== Öğün içerikleri (mutfak talimatına göre · gün rotasyonlu) =====
 // JS getDay(): Paz=0 Pzt=1 Sal=2 Çar=3 Per=4 Cum=5 Cmt=6
 const LUNCH_ROT  = {1:"Tavuk",2:"Dana (yağlı)",3:"Hindi",4:"Somon",5:"Tavuk",6:"Dana (yağlı)",0:"Hindi"};
+const DINNER_ROT = {1:"Somon",2:"Tavuk",3:"Dana (yağlı)",4:"Tavuk",5:"Somon",6:"Somon",0:"Tavuk"};
 const BF_S1_DAYS = [1,3,5,0];   // S1 günleri; diğerleri S2
 function mealContent(name, wd){
-  if (name === "Öğün")
+  if (name === "Kahvaltı")
     return BF_S1_DAYS.includes(wd) ? "Karabuğdaylı omlet" : "Haşlanmış yumurtalı tabak";
-  if (name.startsWith("Ara Öğün"))
-    return "10 badem / 3 ceviz + yeşil çay";
-  if (name.includes("Ana Öğün"))
+  if (name === "Ana Yemek")
     return `${LUNCH_ROT[wd]} + basmati + bol salata`;
-  if (name.startsWith("2. Ara"))
-    return "Muz veya elma";
-  if (name.includes("Son Öğün"))
-    return "Yoğurt + tarçın";
+  if (name === "Akşam Yemeği")
+    return `${DINNER_ROT[wd]} + tatlı patates + sebze`;
   return null;
 }
 function updateMealInfo(st, wd){
