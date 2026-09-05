@@ -107,7 +107,8 @@
 </div>
 
 <script>
-// ===== PLAN (gece düzeni · gün 02:00'de başlar) =====
+const BUILD = "20260905-1347";
+// ===== PLAN =====
 const SCHEDULE = [
   { s:"03:00", n:"Uyanış & Hazırlık", c:"" },
   { s:"03:30", n:"Atölye 1'e Gidiş", c:"" },
@@ -328,6 +329,15 @@ updateMoon();
 setInterval(render, 1000);
 setInterval(updateWx, 30*60*1000);
 setInterval(updateMoon, 60*60*1000);
+
+// ===== Otomatik güncelleme: sunucudaki sürüm değiştiyse sayfayı yenile =====
+function checkUpdate(){
+  fetch(location.pathname.endsWith("/") ? "index.html" : location.pathname.split("/").pop(), {cache:"no-store"})
+    .then(r => r.text())
+    .then(t => { if (t.includes("const BUILD") && !t.includes(`const BUILD = "${BUILD}"`)) location.reload(); })
+    .catch(()=>{});
+}
+setInterval(checkUpdate, 30*60*1000);
 </script>
 </body>
 </html>
