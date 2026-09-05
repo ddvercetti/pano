@@ -31,6 +31,7 @@
   #nowLabel span { background:#e6edf3; color:#0d1117; font-size:2vh; font-weight:800;
     padding:0.5vh 1vw; border-radius:0.8vh; letter-spacing:0.12em; }
   #nowName { font-size:6.4vh; font-weight:800; line-height:1.12; margin-top:1.2vh; }
+  #nowDesc { font-size:2.1vh; color:#8b949e; margin-top:0.6vh; line-height:1.35; }
   #remain { font-size:2.9vh; color:#ffa657; font-weight:700; margin-top:1vh; }
   #barWrap { margin-top:1.6vh; height:2.4vh; background:#21262d; border-radius:1.2vh; overflow:hidden; }
   #bar { height:100%; width:0%; background:linear-gradient(90deg,#238636,#2ea043); border-radius:1.2vh;
@@ -80,6 +81,7 @@
     <div id="sun">—</div>
     <div id="nowLabel"><span>ŞİMDİ</span></div>
     <div id="nowName">—</div>
+    <div id="nowDesc"></div>
     <div id="remain">—</div>
     <div id="barWrap"><div id="bar"></div></div>
     <div id="moonZone">
@@ -107,23 +109,48 @@
 <script>
 // ===== PLAN (gece düzeni · gün 02:00'de başlar) =====
 const SCHEDULE = [
-  { s:"02:00", n:"Uyanış & Hazırlık", c:"" },
-  { s:"02:30", n:"Atölye 1'e Gidiş", c:"" },
-  { s:"03:00", n:"İş — Atölye 1", c:"work" },
-  { s:"03:30", n:"Kahvaltı", c:"meal" },
-  { s:"03:45", n:"İş — Atölye 1", c:"work" },
+  { s:"03:00", n:"Uyanış & Hazırlık", c:"" },
+  { s:"03:30", n:"Atölye 1'e Gidiş", c:"" },
+  { s:"04:00", n:"İş — Atölye 1", c:"work" },
+  { s:"04:30", n:"Kahvaltı", c:"meal" },
+  { s:"04:45", n:"İş — Atölye 1", c:"work" },
+  { s:"09:00", n:"Mola · Nefes / Yürüyüş", c:"" },
+  { s:"09:10", n:"İş — Atölye 1", c:"work" },
+  { s:"13:45", n:"Günü Kapat · Yarını Planla", c:"work" },
   { s:"14:00", n:"Eve Dönüş", c:"" },
   { s:"14:30", n:"Ana Yemek", c:"meal" },
   { s:"15:00", n:"Serbest / Sindirim", c:"" },
-  { s:"15:30", n:"Vinyasa / Yoga", c:"yoga" },
-  { s:"16:15", n:"Ağırlık + Kardiyo", c:"train", split:true },
-  { s:"17:00", n:"Soğuk Duş / Meditasyon", c:"" },
+  { s:"15:30", n:"Ağırlık + Kardiyo", c:"train", split:true },
+  { s:"16:15", n:"Soğuk Duş / Meditasyon", c:"" },
+  { s:"16:30", n:"Kitap Okuma", c:"yoga" },
   { s:"17:15", n:"Akşam Yemeği", c:"meal" },
-  { s:"17:45", n:"Yatış Hazırlığı", c:"" },
-  { s:"18:00", n:"UYKU", c:"sleep" },
+  { s:"17:45", n:"Serbest / Tampon", c:"" },
+  { s:"18:45", n:"Trataka Meditasyonu · Yatış", c:"" },
+  { s:"19:00", n:"UYKU", c:"sleep" },
 ];
-const REST_DAYS = [4, 0];   // JS getDay(): Paz=0, Per=4
-const DAY_START = 120;
+const DETAILS = [
+  "Su iç · tartı (aç karnına) · ışıkları aç",
+  "",
+  "",
+  "Oturarak, 15 dk",
+  "",
+  "Dışarı çık, 3-4 dk yürü · Fizyolojik iç çekiş ×5: burundan 2 kısa nefes (2.si tepeye kadar), ağızdan uzun ver · günün son kahvesi",
+  "",
+  "Kağıda 3 madde: bugün biten · yarın ilk 3 iş · Sarayçık'ta sıradaki adım — sonra atölyeyi kapat",
+  "",
+  "Yavaş, 20 dk",
+  "Hafif yürüyüş veya dinlenme, ekran az",
+  "Pzt-Sal-Cum-Cmt: 30 dk ağırlık + 15 dk Zone 2 · Çar-Per: 40 dk Zone 2 (nabız 115-130, konuşabilir tempo) · Paz dinlenme",
+  "2-3 dk soğuk su · ardından 10 dk oturma, nefese odak",
+  "45 dk kitap · ekran yok",
+  "Hafif porsiyon",
+  "Ev · serbest — iş yok, ekran az",
+  "Loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak, az kırp · 2-3 dk gözler kapalı, ardıl imgeyi izle · sonra yat",
+  "Karartma perdesi",
+];
+const ZONE2_DAYS = [3, 4];   // Çar, Per → Zone 2 kardiyo
+const REST_DAYS = [0];        // Paz → tam dinlenme   // JS getDay(): Paz=0, Per=4
+const DAY_START = 180;
 const DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 const MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 
@@ -133,7 +160,10 @@ const starts = SCHEDULE.map(b => norm(toMin(b.s)));
 
 function blkName(i, wd){
   let n = SCHEDULE[i].n;
-  if (SCHEDULE[i].split && REST_DAYS.includes(wd)) n = "Dinlenme (antr. yok)";
+  if (SCHEDULE[i].split){
+    if (REST_DAYS.includes(wd)) n = "Dinlenme (antr. yok)";
+    else if (ZONE2_DAYS.includes(wd)) n = "Zone 2 Kardiyo · 40 dk";
+  }
   return n;
 }
 
@@ -182,7 +212,7 @@ function render(){
   if (st.sleeping){
     document.getElementById("nClock").textContent = `${hh}:${mm}`;
     const h=Math.floor(st.wait/60), m2=st.wait%60;
-    document.getElementById("nInfo").textContent = `Uyanış 02:00 · ${h} sa ${m2} dk`;
+    document.getElementById("nInfo").textContent = `Uyanış 03:00 · ${h} sa ${m2} dk`;
     return;
   }
 
@@ -192,6 +222,7 @@ function render(){
     `${now.getDate()} ${MONTHS[now.getMonth()]} ${DAYS[wd]}`;
   document.getElementById("nowName").textContent = blkName(st.idx, wd);
   document.getElementById("remain").textContent = fmtWait(st.wait);
+  document.getElementById("nowDesc").textContent = DETAILS[st.idx] || "";
   document.getElementById("bar").style.width = st.pct.toFixed(1)+"%";
   document.getElementById("nx1").innerHTML =
     `→ <b>${SCHEDULE[st.nxt1].s}</b> · ${blkName(st.nxt1, wd)}`;
