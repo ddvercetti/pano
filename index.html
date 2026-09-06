@@ -27,6 +27,12 @@
   #sun { font-size:2.2vh; color:#8b949e; margin-top:0.5vh; }
   #mealInfo { font-size:2.4vh; color:#d4a017; margin-top:1.4vh; line-height:1.4; }
   #mealInfo b { color:#e8c766; }
+  #water { margin-top:1.2vh; font-size:2.2vh; color:#8b949e; display:flex; align-items:center; gap:0.5vw; flex-wrap:wrap; }
+  #water .cup { width:1.9vh; height:2.3vh; }
+  #water .cup path { fill:none; stroke:#58a6ff; stroke-width:1.2; }
+  #water .cup.full path { fill:#58a6ff; }
+  #water .cup.due path { stroke:#ffa657; }
+  #water .txt { margin-left:0.4vw; }
   #nowLabel { margin-top:3.2vh; display:inline-block; }
   #nowLabel span { background:#e6edf3; color:#0d1117; font-size:2vh; font-weight:800;
     padding:0.5vh 1vw; border-radius:0.8vh; letter-spacing:0.12em; }
@@ -89,6 +95,7 @@
       <div id="moonTxt">—</div>
     </div>
     <div id="mealInfo">—</div>
+    <div id="water"></div>
     <div id="nexts">
       <div class="nx" id="nx1">—</div>
       <div class="nx" id="nx2">—</div>
@@ -107,49 +114,52 @@
 </div>
 
 <script>
-const BUILD = "20260905-1347";
+const BUILD = "20260906-0440";
 // ===== PLAN =====
 const SCHEDULE = [
-  { s:"03:00", n:"Uyanış & Hazırlık", c:"" },
-  { s:"03:30", n:"Atölye 1'e Gidiş", c:"" },
-  { s:"04:00", n:"İş — Atölye 1", c:"work" },
-  { s:"04:30", n:"Kahvaltı", c:"meal" },
-  { s:"04:45", n:"İş — Atölye 1", c:"work" },
+  { s:"03:00", n:"Uyanış", c:"" },
+  { s:"03:10", n:"Sabah Yürüyüşü · Zone 2", c:"train" },
+  { s:"03:40", n:"Kahvaltı", c:"meal" },
+  { s:"04:00", n:"Atölye 1'e Gidiş", c:"" },
+  { s:"04:30", n:"İş — Atölye 1", c:"work" },
   { s:"09:00", n:"Mola · Nefes / Yürüyüş", c:"" },
   { s:"09:10", n:"İş — Atölye 1", c:"work" },
+  { s:"11:00", n:"Ana Yemek", c:"meal" },
+  { s:"11:30", n:"İş — Atölye 1", c:"work" },
   { s:"13:45", n:"Günü Kapat · Yarını Planla", c:"work" },
   { s:"14:00", n:"Eve Dönüş", c:"" },
-  { s:"14:30", n:"Ana Yemek", c:"meal" },
+  { s:"14:30", n:"Son Yemek", c:"meal" },
   { s:"15:00", n:"Serbest / Sindirim", c:"" },
-  { s:"15:30", n:"Ağırlık + Kardiyo", c:"train", split:true },
+  { s:"15:30", n:"Zone 2 Kardiyo", c:"train", split:true },
   { s:"16:15", n:"Soğuk Duş / Meditasyon", c:"" },
   { s:"16:30", n:"Kitap Okuma", c:"yoga" },
-  { s:"17:15", n:"Akşam Yemeği", c:"meal" },
-  { s:"17:45", n:"Serbest / Tampon", c:"" },
+  { s:"17:15", n:"Serbest / Tampon", c:"" },
   { s:"18:45", n:"Trataka Meditasyonu · Yatış", c:"" },
   { s:"19:00", n:"UYKU", c:"sleep" },
 ];
+const WATER_TIMES = ["03:00","03:40","06:00","09:00","11:00","14:30","16:15"];
 const DETAILS = [
-  "Su iç · tartı (aç karnına) · ışıkları aç",
+  "Su iç · tartı (aç karnına) · ışıkları aç · yürüyüş kıyafeti",
+  "30 dk tempolu yürüyüş, nabız 115-130 · güne başlama ritüeli",
+  "5 haşlanmış yumurta + zeytin/yeşillik (aşçı akşamdan hazırlar)",
   "",
   "",
-  "Oturarak, 15 dk",
+  "Dışarı çık, 3-4 dk yürü · Fizyolojik iç çekiş ×5: burundan 2 kısa nefes, ağızdan uzun ver · günün son kahvesi · isteğe bağlı 1-2 set barfiks/şınav",
   "",
-  "Dışarı çık, 3-4 dk yürü · Fizyolojik iç çekiş ×5: burundan 2 kısa nefes (2.si tepeye kadar), ağızdan uzun ver · günün son kahvesi",
+  "Atölyede, kutudan · yavaş, 20-30 dk",
   "",
   "Kağıda 3 madde: bugün biten · yarın ilk 3 iş · Sarayçık'ta sıradaki adım — sonra atölyeyi kapat",
   "",
-  "Yavaş, 20 dk",
+  "Günün son öğünü — 15:00'te biter (uykuya 4 saat)",
   "Hafif yürüyüş veya dinlenme, ekran az",
-  "Pzt-Sal-Cum-Cmt: 30 dk ağırlık + 15 dk Zone 2 · Çar-Per: 40 dk Zone 2 (nabız 115-130, konuşabilir tempo) · Paz dinlenme",
+  "Cmt & Paz: 40 dk Zone 2 (nabız 115-130, konuşabilir tempo) · hafta içi serbest",
   "2-3 dk soğuk su · ardından 10 dk oturma, nefese odak",
   "45 dk kitap · ekran yok",
-  "Hafif porsiyon",
-  "Ev · serbest — iş yok, ekran az",
+  "Ev · serbest — iş yok, ekran az, yemek yok",
   "Loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak, az kırp · 2-3 dk gözler kapalı, ardıl imgeyi izle · sonra yat",
   "Karartma perdesi",
 ];
-const ZONE2_DAYS = [3, 4];   // Çar, Per → Zone 2 kardiyo
+const ZONE2_DAYS = [6, 0];   // Cmt, Paz → Zone 2 kardiyo
 const REST_DAYS = [0];        // Paz → tam dinlenme   // JS getDay(): Paz=0, Per=4
 const DAY_START = 180;
 const DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
@@ -162,8 +172,7 @@ const starts = SCHEDULE.map(b => norm(toMin(b.s)));
 function blkName(i, wd){
   let n = SCHEDULE[i].n;
   if (SCHEDULE[i].split){
-    if (REST_DAYS.includes(wd)) n = "Dinlenme (antr. yok)";
-    else if (ZONE2_DAYS.includes(wd)) n = "Zone 2 Kardiyo · 40 dk";
+    n = ZONE2_DAYS.includes(wd) ? "Zone 2 Kardiyo · 40 dk" : "Serbest / Dinlenme";
   }
   return n;
 }
@@ -231,6 +240,7 @@ function render(){
     `→ <b>${SCHEDULE[st.nxt2].s}</b> · ${blkName(st.nxt2, wd)}`;
   document.getElementById("prog").textContent = `Bugün: ${st.idx}/${SCHEDULE.length} tamamlandı`;
   updateMealInfo(st, wd);
+  updateWater(now);
 
   SCHEDULE.forEach((b,i)=>{
     const el = document.getElementById("b"+i);
@@ -244,13 +254,12 @@ function render(){
 // JS getDay(): Paz=0 Pzt=1 Sal=2 Çar=3 Per=4 Cum=5 Cmt=6
 const LUNCH_ROT  = {1:"Tavuk",2:"Dana (yağlı)",3:"Hindi",4:"Somon",5:"Tavuk",6:"Dana (yağlı)",0:"Hindi"};
 const DINNER_ROT = {1:"Somon",2:"Tavuk",3:"Dana (yağlı)",4:"Tavuk",5:"Somon",6:"Somon",0:"Tavuk"};
-const BF_S1_DAYS = [1,3,5,0];   // S1 günleri; diğerleri S2
 function mealContent(name, wd){
-  if (name === "Kahvaltı")
-    return BF_S1_DAYS.includes(wd) ? "Karabuğdaylı omlet" : "Haşlanmış yumurtalı tabak";
+  if (name.includes("Kahvaltı"))
+    return "5 haşlanmış yumurta + zeytin/yeşillik";
   if (name === "Ana Yemek")
-    return `${LUNCH_ROT[wd]} + basmati + bol salata`;
-  if (name === "Akşam Yemeği")
+    return `${LUNCH_ROT[wd]} + basmati + bol salata (kutu)`;
+  if (name === "Son Yemek")
     return `${DINNER_ROT[wd]} + tatlı patates + sebze`;
   return null;
 }
@@ -329,6 +338,22 @@ updateMoon();
 setInterval(render, 1000);
 setInterval(updateWx, 30*60*1000);
 setInterval(updateMoon, 60*60*1000);
+
+// ===== Su rehberi: 7 × 0,5 L, saatlere dağıtılmış =====
+function updateWater(now){
+  const cur = norm(now.getHours()*60 + now.getMinutes());
+  let html = "", done = 0;
+  WATER_TIMES.forEach(t => {
+    const tn = norm(toMin(t));
+    const full = cur >= tn;
+    const due = !full && (tn - cur) <= 30;      // 30 dk içinde sıradaki bardak
+    if (full) done++;
+    html += `<svg class="cup ${full?"full":""} ${due?"due":""}" viewBox="0 0 10 12"><path d="M1 0.5h8l-1.2 11H2.2z"/></svg>`;
+  });
+  const nextT = WATER_TIMES.find(t => norm(toMin(t)) > cur);
+  html += `<span class="txt">${done}/7 · ${(done*0.5).toFixed(1).replace(".",",")} L${nextT ? " · sıradaki " + nextT : ""}</span>`;
+  document.getElementById("water").innerHTML = html;
+}
 
 // ===== Otomatik güncelleme: sunucudaki sürüm değiştiyse sayfayı yenile =====
 function checkUpdate(){
