@@ -118,6 +118,7 @@ F_HDR = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 14)
 F_BADGE = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 11)
 F_TIME = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 15)
 F_TITLE = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 21)
+F_TITLE2 = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 17)
 F_MINI = ImageFont.truetype(f"{FD}/DejaVuSans.ttf", 11)
 F_FOOT = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 11)
 
@@ -228,11 +229,12 @@ def wrap2(d, text, font, maxw):
     return [l1]
 
 
-TIPS_HIGH = ["Nefes egzersizi yap", "10 dk meditasyon yap", "Nefes: 2 kısa + uzun ver",
-             "10 dk yürü, telefon yok", "Kahveyi kes, su iç", "Bugün yükü hafiflet",
-             "Omuzları indir, çene gevşet", "19:00'da yat", "Zone 2 yerine hafif yürü"]
-TIPS_MID  = ["5 dk nefes molası", "Kısa meditasyon yap", "Su iç, ayağa kalk", "Tempoyu düşür",
-             "Bugün ekran az", "Kısa yürüyüş iyi gelir", "Yemeği yavaş ye"]
+TIPS_HIGH = ["10 dk meditasyon yap", "Nefes egzersizi yap", "2 kısa nefes, uzun ver",
+             "10 dk yürü, telefonsuz", "Kahveyi kes, su iç", "Yükü hafiflet",
+             "Omuzları indir", "19:00'da yat", "Sadece hafif yürü"]
+TIPS_MID  = ["5 dk nefes molası", "Kısa meditasyon", "Su iç, ayağa kalk", "Tempoyu düşür",
+             "Ekranı azalt", "Kısa yürüyüş", "Yavaş ye"]
+F_TINY = ImageFont.truetype(f"{FD}/DejaVuSans.ttf", 9)
 
 def draw_face(d, x, y, r, mood):
     """r yarıçaplı yüz: happy / sad / stressed — kalın çizgili."""
@@ -309,14 +311,27 @@ def render(now, st, W, H):
 
     # ---- Şu anki iş (büyük; 1-2 satır) ----
     lines = wrap2(d, st["cur_name"], F_TITLE, W - 18 - face_w)
+    tf, step = F_TITLE, 22
+    if len(lines) > 1:
+        lines = wrap2(d, st["cur_name"], F_TITLE2, W - 18 - face_w)
+        tf, step = F_TITLE2, 19
     y = 44
     for i, ln in enumerate(lines):
         if i == 0:
             d.text((4, y + 4), "▶", font=F_MINI, fill=0)
-        d.text((16, y - 2), ln, font=F_TITLE, fill=0)
-        y += 22
+        d.text((16, y - 1), ln, font=tf, fill=0)
+        y += step
 
-    # ---- Sıradaki 2 iş + su ----
+    def current_tip():
+        if not hz:
+            return None
+        spct = hz[3]
+        if spct >= 65:
+            return TIPS_HIGH[now.hour % len(TIPS_HIGH)]
+        if spct >= 35:
+            return TIPS_MID[now.hour % len(TIPS_MID)]
+        return None
+    tip = current_tip()
     def draw_water(y):
         d.text((4, y + 1), "Su", font=F_MINI, fill=0)
         x = 24
@@ -329,38 +344,32 @@ def render(now, st, W, H):
             if fh > 0:
                 d.rectangle((x + 1, y + 12 - fh, x + 10, y + 11), fill=0)
             x += 15
-        d.text((x + 2, y + 1), f"{litre:.1f} / {WATER_CUPS} L".replace(".", ","), font=F_MINI, fill=0)
-    def current_tip():
-        if not hz:
-            return None
-        spct = hz[3]
-        if spct >= 65:
-            return TIPS_HIGH[now.hour % len(TIPS_HIGH)]
-        if spct >= 35:
-            return TIPS_MID[now.hour % len(TIPS_MID)]
-        return None
-    tip = current_tip()
+        ltxt = f"{litre:.1f} L".replace(".", ",")
+        d.text((x + 2, y + 1), ltxt, font=F_MINI, fill=0)
+        # tavsiye (stres ≥ %35): sağa yaslı, sığmazsa küçük font
+        if tip:
+            avail = W - 4 - (x + 2 + d.textlength(ltxt, font=F_MINI) + 8)
+            f = F_MINI if d.textlength(tip, font=F_MINI) <= avail else F_TINY
+            tw = d.textlength(tip, font=f)
+            d.text((W - tw - 4, y + (1 if f is F_MINI else 3)), tip, font=f, fill=0)
     if len(lines) == 1:
         d.text((4, 68), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
-        if tip:
-            d.text((4, 79), f"! {tip}", font=F_MINI, fill=0)      # stresliyken 2. sıradaki yerine tavsiye
-        else:
-            d.text((4, 79), f"→ {st['nxt2_start']}  {st['nxt2_name']}", font=F_MINI, fill=0)
+        d.text((4, 79), f"→ {st['nxt2_start']}  {st['nxt2_name']}", font=F_MINI, fill=0)
         draw_water(91)
     else:
-        d.text((4, 84), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
-        draw_water(94)
+        d.text((4, 81), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
+        draw_water(93)
 
     # ---- Alt: solda şu anki işin ilerleme barı, sağda genel x/x ----
-    d.line((0, H - 16, W, H - 16), fill=0, width=1)
+    d.line((0, H - 14, W, H - 14), fill=0, width=1)
     prog = f"{st['done']}/{st['total']}"
     pw = d.textlength(prog, font=F_FOOT)
-    d.text((W - pw - 4, H - 15), prog, font=F_FOOT, fill=0)
+    d.text((W - pw - 4, H - 13), prog, font=F_FOOT, fill=0)
     bar_w = W - int(pw) - 18        # bar, x/x yazısına kadar uzanır
-    d.rectangle((4, H - 13, 4 + bar_w, H - 4), outline=0, width=1)
+    d.rectangle((4, H - 11, 4 + bar_w, H - 4), outline=0, width=1)
     fill_w = int(bar_w * st["pct"])
     if fill_w > 1:
-        d.rectangle((4, H - 13, 4 + fill_w, H - 4), fill=0)
+        d.rectangle((4, H - 11, 4 + fill_w, H - 4), fill=0)
     return img
 
 
