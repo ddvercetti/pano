@@ -129,15 +129,17 @@ HEALTH_HISTORY = "/home/pi/health_history.json"
 HRV_BASE_DEFAULT = 36.0   # ms — Doruk yaz ortalaması (geçmiş birikince otomatik güncellenir)
 RHR_BASE_DEFAULT = 74.0   # bpm
 
-def stress_pct(hrv, rhr, hrv_base, rhr_base):
-    """0-100: HRV tabanın altına indikçe + RHR tabanın üstüne çıktıkça artar."""
+def stress_pct(hrv, rhr, hrv_base, rhr_base, hr=None):
+    """0-100: HRV tabanın altına indikçe (45p) + RHR tabanın üstüne çıktıkça (30p)
+    + anlık nabız dinlenik tabanın üstündeyse (25p; >105 = aktivite, sayılmaz)."""
     s = 0.0
     if hrv and hrv_base:
-        ratio = hrv / hrv_base                  # 1.0 normal, 0.5 çok düşük
-        s += 60.0 * max(0.0, min(1.0, (1.0 - ratio) / 0.5))
+        ratio = hrv / hrv_base
+        s += 45.0 * max(0.0, min(1.0, (1.0 - ratio) / 0.5))
     if rhr and rhr_base:
-        diff = rhr - rhr_base                   # 0 normal, +12 çok yüksek
-        s += 40.0 * max(0.0, min(1.0, diff / 12.0))
+        s += 30.0 * max(0.0, min(1.0, (rhr - rhr_base) / 12.0))
+    if hr and rhr_base and hr <= 105:
+        s += 25.0 * max(0.0, min(1.0, (hr - rhr_base) / 20.0))
     return int(round(max(0.0, min(100.0, s))))
 
 def get_health():
@@ -149,7 +151,7 @@ def get_health():
             return None
         L = _j.load(open(HEALTH_LATEST))
         age_h = (_dt.now() - _dt.fromisoformat(L["ts"])).total_seconds() / 3600
-        if age_h > 6:
+        if age_h > 3:
             return None
         hrv, rhr, hr = L.get("hrv"), L.get("rhr"), L.get("hr")
         hrv_base, rhr_base = HRV_BASE_DEFAULT, RHR_BASE_DEFAULT
@@ -159,7 +161,7 @@ def get_health():
             rv = [v["rhr"] for v in H.values() if "rhr" in v][-7:]
             if len(hv) >= 3: hrv_base = sum(hv) / len(hv)
             if len(rv) >= 3: rhr_base = sum(rv) / len(rv)
-        return (hrv, rhr, hr, stress_pct(hrv, rhr, hrv_base, rhr_base))
+        return (hrv, rhr, hr, stress_pct(hrv, rhr, hrv_base, rhr_base, hr))
     except Exception:
         return None
 
