@@ -114,54 +114,68 @@
 </div>
 
 <script>
-const BUILD = "20260906-0440";
+const BUILD = "20261014-0655";
 // ===== PLAN =====
 const SCHEDULE = [
-  { s:"03:00", n:"Uyanış", c:"" },
-  { s:"03:10", n:"Sabah Yürüyüşü · Zone 2", c:"train" },
-  { s:"03:40", n:"Kahvaltı", c:"meal" },
-  { s:"04:00", n:"Atölye 1'e Gidiş", c:"" },
-  { s:"04:30", n:"İş — Atölye 1", c:"work" },
-  { s:"09:00", n:"Mola · Nefes / Yürüyüş", c:"" },
-  { s:"09:10", n:"İş — Atölye 1", c:"work" },
-  { s:"11:00", n:"Ana Yemek", c:"meal" },
-  { s:"11:30", n:"İş — Atölye 1", c:"work" },
+  { s:"04:15", n:"Uyanış & Hazırlık", c:"" },
+  { s:"04:30", n:"Tempolu Yürüyüş", c:"train", walk:true },
+  { s:"05:00", n:"Antrenman", c:"train", split:true },
+  { s:"06:00", n:"Öğün 1", c:"meal" },
+  { s:"06:20", n:"Duş & Hazırlık", c:"" },
+  { s:"06:30", n:"Atölye 1'e Gidiş", c:"" },
+  { s:"07:00", n:"İş — Atölye 1", c:"work" },
+  { s:"09:00", n:"Öğün 2 · Mola", c:"meal" },
+  { s:"09:20", n:"İş — Atölye 1", c:"work" },
+  { s:"11:30", n:"Öğün 3", c:"meal" },
+  { s:"12:00", n:"İş — Atölye 1", c:"work" },
   { s:"13:45", n:"Günü Kapat · Yarını Planla", c:"work" },
   { s:"14:00", n:"Eve Dönüş", c:"" },
-  { s:"14:30", n:"Son Yemek", c:"meal" },
-  { s:"15:00", n:"Serbest / Sindirim", c:"" },
-  { s:"15:30", n:"Zone 2 Kardiyo", c:"train", split:true },
-  { s:"16:15", n:"Soğuk Duş / Meditasyon", c:"" },
+  { s:"14:30", n:"Serbest / Dinlenme", c:"" },
+  { s:"15:30", n:"Öğün 4", c:"meal" },
+  { s:"16:00", n:"Sindirim · Hafif Yürüyüş", c:"" },
+  { s:"16:15", n:"Soğuk Duş / Buteyko Nefes", c:"" },
   { s:"16:30", n:"Kitap Okuma", c:"yoga" },
   { s:"17:15", n:"Serbest / Tampon", c:"" },
   { s:"18:45", n:"Trataka Meditasyonu · Yatış", c:"" },
   { s:"19:00", n:"UYKU", c:"sleep" },
 ];
-const WATER_TIMES = ["03:00","03:40","06:00","09:00","11:00","14:30","16:15"];
+const WATER_TIMES = ["04:15","05:00","06:00","08:00","09:00","11:30","13:30","16:15"];
+const PROGRAM = {
+  1: { n:"İtiş · Göğüs/Omuz/Arka kol", d:"Isınma: arm + shoulder circles 3 tur · Incline bench 4×6-8 · Incline DB press 3×8-10 · DB fly 3×10-12 · Bench dips 3×10 · Lateral raise 4×12-15 · DB triceps ext 3×10 · Overhead DB ext 3×10 · Soğuma: göğüs esneme" },
+  2: { n:"Çekiş · Sırt/Ön kol", d:"Isınma: pelvik tilt + cat cow · Pull up 3×8 · Barbell row 4×6-8 · DB row 3×10-12 (tek) · DB pullover 3×10-12 · Shrug 4×10-12 · EZ curl 4×8-10 · Hammer curl 4×10-12 · Soğuma: hamstring + omuz esneme" },
+  3: { n:"HIIT · Tüm vücut süperset", d:"Isınma: jumping jack + high knees · SS DB squat press + goblet squat 3×10-15 · SS RDL + barbell row 3×10 · SS push up + renegade row 3×10-15 · SS alt. curl + DB shoulder press 3×10-15 · SS leg raise + crunch 3×10-15 · Soğuma: quad + hamstring" },
+  4: { n:"Üst Bölge", d:"Isınma: arm + shoulder circles · Incline bench 4×8 · Barbell row 3×10 · DB shoulder press 3×10-12 · SS lateral + front raise 3×12 · EZ lying triceps 3×10 · EZ curl 3×10 · Push up 2×max · Soğuma: göğüs esneme + cat cow" },
+  5: { n:"Bacak", d:"Isınma: lunge stretch + knee to chest · Barbell squat 4×6-8 · RDL 4×8-10 · Lunge 3×12 (tek, DB) · Bulgarian split squat 3×10 · Calf raise 4×12-15 · Wall sit 2×45 sn (tükeniş) · Soğuma: quad + hamstring" },
+  6: { n:"Kardiyo · 45 dk Tempolu Yürüyüş", d:"45 dk brisk walking, nabız 110-130 · koşu bandı / bisiklet / dışarıda yürüyüş" },
+  0: { n:"Kardiyo Günü · 45 dk Yürüyüş", d:"45 dk brisk walking, nabız 110-130 · rahat tempo" },
+};
+const SUPP = {"Uyanış & Hazırlık": "Psyllium husk 1 servis + büyük bardak su (aç karnına, diğer takviyelerden ayrı)", "Tempolu Yürüyüş": "L-Carnitine 1 servis (antrenman öncesi)", "Antrenman": "Antrenman içi: EAA 10 g + izotonik elektrolit 1 ölçek", "Öğün 1": "Kreatin 5 g · Berberine 500 mg · Krom pikolinat · sonra: Omega-3 1000 mg · D3K2 4000 IU · Prebiyotik", "Öğün 3": "Berberine 500 mg · Krom pikolinat", "Serbest / Tampon": "17:30 Magnezyum 250 mg · Çinko bisglisinat 40 mg (aç değil, bir şey yemeden içme sorun olursa su ile)"};
 const DETAILS = [
-  "Su iç · tartı (aç karnına) · ışıkları aç · yürüyüş kıyafeti",
-  "30 dk tempolu yürüyüş, nabız 115-130 · güne başlama ritüeli",
-  "5 haşlanmış yumurta + zeytin/yeşillik (aşçı akşamdan hazırlar)",
+  "Su iç · tartı (aç karnına) · CP ölç: normal nefes ver, ilk nefes dürtüsüne kadar say (hedef 40 sn) · ışıkları aç",
   "",
   "",
-  "Dışarı çık, 3-4 dk yürü · Fizyolojik iç çekiş ×5: burundan 2 kısa nefes, ağızdan uzun ver · günün son kahvesi · isteğe bağlı 1-2 set barfiks/şınav",
   "",
-  "Atölyede, kutudan · yavaş, 20-30 dk",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
   "",
   "Kağıda 3 madde: bugün biten · yarın ilk 3 iş · Sarayçık'ta sıradaki adım — sonra atölyeyi kapat",
   "",
-  "Günün son öğünü — 15:00'te biter (uykuya 4 saat)",
-  "Hafif yürüyüş veya dinlenme, ekran az",
-  "Cmt & Paz: 40 dk Zone 2 (nabız 115-130, konuşabilir tempo) · hafta içi serbest",
-  "2-3 dk soğuk su · ardından 10 dk oturma, nefese odak",
+  "Ev · dinlenme, ekran az",
+  "",
+  "10-15 dk hafif yürüyüş · son öğün bitti, uykuya 3 saat · bundan sonra yemek yok",
+  "2-3 dk soğuk su · ardından Buteyko 4-9-10 ×10 tur, oturarak, burundan (4 sn al · 9 sn ver · boş akciğerle 10 sn tut) — hafif hava açlığı hedef, baş dönmesi olursa dur",
   "45 dk kitap · ekran yok",
   "Ev · serbest — iş yok, ekran az, yemek yok",
-  "Loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak, az kırp · 2-3 dk gözler kapalı, ardıl imgeyi izle · sonra yat",
-  "Karartma perdesi",
+  "Önce 4-7-8 ×4 (4 al · 7 tut · 8 ver) · sonra loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak · 2-3 dk gözler kapalı · yat",
+  "Karartma perdesi · 9 sa 15 dk",
 ];
-const ZONE2_DAYS = [6, 0];   // Cmt, Paz → Zone 2 kardiyo
+const ZONE2_DAYS = [3, 6];   // Çar, Cmt → 60 dk Zone 2
 const REST_DAYS = [0];        // Paz → tam dinlenme   // JS getDay(): Paz=0, Per=4
-const DAY_START = 180;
+const DAY_START = 255;   // gün 04:15
 const DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 const MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 
@@ -171,10 +185,18 @@ const starts = SCHEDULE.map(b => norm(toMin(b.s)));
 
 function blkName(i, wd){
   let n = SCHEDULE[i].n;
-  if (SCHEDULE[i].split){
-    n = ZONE2_DAYS.includes(wd) ? "Zone 2 Kardiyo · 40 dk" : "Serbest / Dinlenme";
-  }
+  if (SCHEDULE[i].split) n = "Antrenman · " + PROGRAM[wd].n;
+  if (SCHEDULE[i].walk) n = (wd === 0 || wd === 6) ? "Hazırlık" : "Tempolu Yürüyüş · 20 dk";
   return n;
+}
+function blkDesc(i, wd){
+  let d = "";
+  if (SCHEDULE[i].split) d = PROGRAM[wd].d;
+  else if (SCHEDULE[i].walk) d = (wd === 0 || wd === 6) ? "Hafta sonu: yürüyüş 05:00'te 45 dk — bu blok serbest hazırlık" : "20 dk tempolu yürüyüş, nabız 110-130 · günlük hedef 10.000 adım";
+  else if (SCHEDULE[i].c === "meal") d = (mealContent(SCHEDULE[i].n, wd) || "") + " · 2 g tuz";
+  else d = DETAILS[i] || "";
+  const sp = SUPP[SCHEDULE[i].n.split(" · ")[0]];
+  return sp ? d + "  💊 " + sp : d;
 }
 
 function getState(now){
@@ -222,7 +244,7 @@ function render(){
   if (st.sleeping){
     document.getElementById("nClock").textContent = `${hh}:${mm}`;
     const h=Math.floor(st.wait/60), m2=st.wait%60;
-    document.getElementById("nInfo").textContent = `Uyanış 03:00 · ${h} sa ${m2} dk`;
+    document.getElementById("nInfo").textContent = `Uyanış 04:15 · ${h} sa ${m2} dk`;
     return;
   }
 
@@ -232,7 +254,7 @@ function render(){
     `${now.getDate()} ${MONTHS[now.getMonth()]} ${DAYS[wd]}`;
   document.getElementById("nowName").textContent = blkName(st.idx, wd);
   document.getElementById("remain").textContent = fmtWait(st.wait);
-  document.getElementById("nowDesc").textContent = DETAILS[st.idx] || "";
+  document.getElementById("nowDesc").textContent = blkDesc(st.idx, wd);
   document.getElementById("bar").style.width = st.pct.toFixed(1)+"%";
   document.getElementById("nx1").innerHTML =
     `→ <b>${SCHEDULE[st.nxt1].s}</b> · ${blkName(st.nxt1, wd)}`;
@@ -251,16 +273,14 @@ function render(){
 }
 
 // ===== Öğün içerikleri (mutfak talimatına göre · gün rotasyonlu) =====
-// JS getDay(): Paz=0 Pzt=1 Sal=2 Çar=3 Per=4 Cum=5 Cmt=6
-const LUNCH_ROT  = {1:"Tavuk",2:"Dana (yağlı)",3:"Hindi",4:"Somon",5:"Tavuk",6:"Dana (yağlı)",0:"Hindi"};
-const DINNER_ROT = {1:"Somon",2:"Tavuk",3:"Dana (yağlı)",4:"Tavuk",5:"Somon",6:"Somon",0:"Tavuk"};
+// Diyetisyen planı · Off gün (Cmt, Paz) karbonhidrat yarıya iner · her öğünde 2 g tuz
+const OFF_DAYS = [6, 0];
 function mealContent(name, wd){
-  if (name.includes("Kahvaltı"))
-    return "5 haşlanmış yumurta + zeytin/yeşillik";
-  if (name === "Ana Yemek")
-    return `${LUNCH_ROT[wd]} + basmati + bol salata (kutu)`;
-  if (name === "Son Yemek")
-    return `${DINNER_ROT[wd]} + tatlı patates + sebze`;
+  const off = OFF_DAYS.includes(wd);
+  if (name.startsWith("Öğün 1")) return `30 g isolate whey + 1 yumurta + ${off?40:80} g yulaf + 60 g çilek · 520 kcal`;
+  if (name.startsWith("Öğün 2")) return `150 g tavuk/hindi göğüs + ${off?40:80} g basmati + 5 g zeytinyağı + salata · 503 kcal`;
+  if (name.startsWith("Öğün 3")) return `150 g tavuk göğüs / yağsız kıyma + ${off?40:80} g basmati + 5 g zeytinyağı · 525 kcal`;
+  if (name.startsWith("Öğün 4")) return `150 g mezgit/tavuk + ${off?120:250} g patates + 5 g zeytinyağı + 100 g sebze · 435 kcal`;
   return null;
 }
 function updateMealInfo(st, wd){
@@ -351,7 +371,7 @@ function updateWater(now){
     html += `<svg class="cup ${full?"full":""} ${due?"due":""}" viewBox="0 0 10 12"><path d="M1 0.5h8l-1.2 11H2.2z"/></svg>`;
   });
   const nextT = WATER_TIMES.find(t => norm(toMin(t)) > cur);
-  html += `<span class="txt">${done}/7 · ${(done*0.5).toFixed(1).replace(".",",")} L${nextT ? " · sıradaki " + nextT : ""}</span>`;
+  html += `<span class="txt">${done}/${WATER_TIMES.length} · ${(done*0.5).toFixed(1).replace(".",",")} L${nextT ? " · sıradaki " + nextT : ""}</span>`;
   document.getElementById("water").innerHTML = html;
 }
 
