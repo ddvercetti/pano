@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-E-Paper Rutin Panosu v2 — "Focus: sıradaki iş" düzeni
+E-Paper Beslenme Panosu v3 — sadece takviye · öğün · su
 Pi Zero 2 W + Waveshare 2.13" (V3 sürücü)
 
-Ekran: siyah üst şerit (tarih+saat) · [X DK SONRA] rozeti + sıradaki blok BÜYÜK
-       · mini liste (şu anki + son biten) · ilerleme çubuğu (N/16 tamam · +K daha)
+Ekran: üst şerit (tarih·pil·saat) · ŞİMDİ/SIRADAKİ + öğün ya da takviye BÜYÜK
+       · içerik satırı · sonraki madde · 8 bardak su · günün ilerlemesi
 """
 
 import os
@@ -81,35 +81,35 @@ elif EPD_VERSION == "V3":
 else:
     from waveshare_epd import epd2in13_V2 as epd_mod
 
-# ===== GÜNLÜK PLAN (gece düzeni · 02:00 kalkış; gün 02:00'de başlar) =====
-SCHEDULE = [
-    ("04:15", "Uyanış & Hazırlık"),
-    ("04:30", "Tempolu Yürüyüş"),
-    ("05:00", "Antrenman"),
-    ("06:00", "Öğün 1"),
-    ("06:20", "Duş & Hazırlık"),
-    ("06:30", "Atölye 1'e Gidiş"),
-    ("07:00", "İş — Atölye 1"),
-    ("09:00", "Öğün 2 · Mola"),
-    ("09:20", "İş — Atölye 1"),
-    ("11:30", "Öğün 3"),
-    ("12:00", "İş — Atölye 1"),
-    ("13:45", "Günü Kapat · Yarını Planla"),
-    ("14:00", "Eve Dönüş"),
-    ("14:30", "Serbest / Dinlenme"),
-    ("15:30", "Öğün 4"),
-    ("16:00", "Sindirim · Yürüyüş"),
-    ("16:15", "Soğuk Duş / Buteyko Nefes"),
-    ("16:30", "Kitap Okuma"),
-    ("17:15", "Serbest / Tampon"),
-    ("18:45", "Trataka Meditasyonu · Yatış"),
-    ("19:00", "UYKU"),
+# ===== BESLENME PLANI (diyetisyen) =====
+DAY_START = 5 * 60 + 15        # gün 05:15'te başlar (uyanış 05:30)
+WAKE, SLEEP = "05:30", "20:15"
+OFF_DAYS = (5, 6)              # Cmt, Paz → karbonhidrat yarı
+WATER_TIMES = ["05:30", "06:15", "07:15", "09:15", "10:15", "12:45", "14:45", "17:30"]  # 8 × 0,5 L = 4 L
+
+# (saat, tür, başlık, içerik)  — içerik None ise gün tipine göre hesaplanır
+ITEMS = [
+    ("05:30", "T", "Psyllium",           "Aç karnına, bol suyla"),
+    ("06:00", "T", "L-Karnitin",         "Antrenmandan önce"),
+    ("06:15", "T", "EAA + elektrolit",   "EAA 10 g · antrenman boyunca"),
+    ("06:45", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 1'den 30 dk önce"),
+    ("07:15", "Y", "Öğün 1",             None),
+    ("07:35", "T", "Sabah takviyeleri",  "Kreatin · D3K2 · Omega-3 · Prebiyotik"),
+    ("10:15", "Y", "Öğün 2",             None),
+    ("12:15", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 3'ten 30 dk önce"),
+    ("12:45", "Y", "Öğün 3",             None),
+    ("16:45", "Y", "Öğün 4",             None),
+    ("20:00", "T", "Magnezyum + çinko",  "Yatmadan önce"),
 ]
-ZONE2_DAYS = (2, 5)   # Çar, Cmt → 60 dk Zone 2
-REST_DAYS = (6,)      # Paz → dinlenme   # Per=3, Paz=6 → antrenman "Dinlenme"
-DAY_START = 4 * 60 + 15   # gün 04:15'te başlar
-WATER_CUPS = 4          # 4 bardak × 1 L
-WATER_FULL_AT = "16:00" # bu saatte hepsi dolu
+PRE, POST_T, POST_Y = 10, 20, 30     # "ŞİMDİ" penceresi (dk): takviye −10/+20, öğün −10/+30
+
+def meal_text(name, wd):
+    off = wd in OFF_DAYS
+    if name == "Öğün 1": return f"Whey 30g · 1 yumurta · yulaf {40 if off else 80}g · çilek"
+    if name == "Öğün 2": return f"Tavuk/hindi 150g · pirinç {40 if off else 80}g · salata"
+    if name == "Öğün 3": return f"Tavuk/kıyma 150g · pirinç {40 if off else 80}g"
+    if name == "Öğün 4": return f"Mezgit/tavuk 150g · patates {120 if off else 250}g · sebze"
+    return ""
 
 DAYS = ["PZT", "SAL", "ÇAR", "PER", "CUM", "CMT", "PAZ"]
 MONTHS = ["OCA", "ŞUB", "MAR", "NİS", "MAY", "HAZ",
@@ -120,52 +120,9 @@ F_HDR = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 14)
 F_BADGE = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 11)
 F_TIME = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 15)
 F_TITLE = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 21)
-F_TITLE2 = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 17)
 F_MINI = ImageFont.truetype(f"{FD}/DejaVuSans.ttf", 11)
+F_TINY = ImageFont.truetype(f"{FD}/DejaVuSans.ttf", 9)
 F_FOOT = ImageFont.truetype(f"{FD}/DejaVuSans-Bold.ttf", 11)
-
-
-HEALTH_LATEST = "/home/pi/health_latest.json"
-HEALTH_HISTORY = "/home/pi/health_history.json"
-
-HRV_BASE_DEFAULT = 36.0   # ms — Doruk yaz ortalaması (geçmiş birikince otomatik güncellenir)
-RHR_BASE_DEFAULT = 74.0   # bpm
-
-def stress_pct(hrv, rhr, hrv_base, rhr_base, hr=None):
-    """0-100: HRV tabanın altına indikçe (45p) + RHR tabanın üstüne çıktıkça (30p)
-    + anlık nabız dinlenik tabanın üstündeyse (25p; >105 = aktivite, sayılmaz)."""
-    s = 0.0
-    if hrv and hrv_base:
-        ratio = hrv / hrv_base
-        s += 45.0 * max(0.0, min(1.0, (1.0 - ratio) / 0.5))
-    if rhr and rhr_base:
-        s += 30.0 * max(0.0, min(1.0, (rhr - rhr_base) / 12.0))
-    if hr and rhr_base and hr <= 105:
-        s += 25.0 * max(0.0, min(1.0, (hr - rhr_base) / 20.0))
-    return int(round(max(0.0, min(100.0, s))))
-
-def get_health():
-    """(hrv, rhr, hr, stres%) — veri yoksa/eskiyse None."""
-    try:
-        import json as _j
-        from datetime import datetime as _dt
-        if not os.path.exists(HEALTH_LATEST):
-            return None
-        L = _j.load(open(HEALTH_LATEST))
-        age_h = (_dt.now() - _dt.fromisoformat(L["ts"])).total_seconds() / 3600
-        if age_h > 3:
-            return None
-        hrv, rhr, hr = L.get("hrv"), L.get("rhr"), L.get("hr")
-        hrv_base, rhr_base = HRV_BASE_DEFAULT, RHR_BASE_DEFAULT
-        if os.path.exists(HEALTH_HISTORY):
-            H = _j.load(open(HEALTH_HISTORY))
-            hv = [v["hrv"] for v in H.values() if "hrv" in v][-7:]
-            rv = [v["rhr"] for v in H.values() if "rhr" in v][-7:]
-            if len(hv) >= 3: hrv_base = sum(hv) / len(hv)
-            if len(rv) >= 3: rhr_base = sum(rv) / len(rv)
-        return (hrv, rhr, hr, stress_pct(hrv, rhr, hrv_base, rhr_base, hr))
-    except Exception:
-        return None
 
 
 def to_min(hhmm):
@@ -174,160 +131,56 @@ def to_min(hhmm):
 
 
 def norm(m):
-    """Dakikayı gün-başlangıcı (02:00) eksenine çevir."""
+    """Dakikayı gün-başlangıcı (05:15) eksenine çevir."""
     return (m - DAY_START) % (24 * 60)
 
 
-PROGRAM = {0: 'İtiş', 1: 'Çekiş', 2: 'HIIT', 3: 'Üst Bölge', 4: 'Bacak', 5: 'Kardiyo 45dk', 6: 'Kardiyo 45dk'}
-
-def day_name_fix(name, weekday):
-    if name == "Antrenman":
-        return "Antr: " + PROGRAM[weekday]
-    if name == "Tempolu Yürüyüş":
-        return "Hazırlık" if weekday >= 5 else "Tempolu Yürüyüş 20dk"
-    return name
-
-
 def state(now):
-    """Aktif idx, sıradaki blok bilgisi, biten sayısı, kalan dk."""
-    cur = norm(now.hour * 60 + now.minute)
-    n = len(SCHEDULE)
-    starts = [norm(to_min(s)) for s, _ in SCHEDULE]   # artan sıralı (0'dan)
-    idx = n - 1
-    for i in range(n):
-        end = starts[i + 1] if i + 1 < n else 24 * 60
-        if starts[i] <= cur < end:
-            idx = i
-            break
-    nxt = (idx + 1) % n
-    nxt2 = (idx + 2) % n
-    nxt_start_norm = starts[nxt] if nxt != 0 else 24 * 60
-    wait = nxt_start_norm - cur     # şu anki bloğun bitişine kalan
-    duration = nxt_start_norm - starts[idx]
-    pct = max(0.0, min(1.0, (cur - starts[idx]) / duration)) if duration > 0 else 0.0
-    done = idx                      # bugün biten blok sayısı
-    wd = now.weekday()
-    full_at = norm(to_min(WATER_FULL_AT))
-    water = max(0.0, min(float(WATER_CUPS), cur / full_at * WATER_CUPS)) if full_at > 0 else 0.0
-    return {
-        "water": water,
-        "cur_name": day_name_fix(SCHEDULE[idx][1], wd),
-        "cur_start": SCHEDULE[idx][0],
-        "nxt_name": day_name_fix(SCHEDULE[nxt][1], wd),
-        "nxt_start": SCHEDULE[nxt][0],
-        "nxt2_name": day_name_fix(SCHEDULE[nxt2][1], wd),
-        "nxt2_start": SCHEDULE[nxt2][0],
-        "wait": wait,
-        "done": done, "total": n, "pct": pct,
-        "sleeping": SCHEDULE[idx][1] == "UYKU",
-    }
-
-
-def wrap2(d, text, font, maxw):
-    if d.textlength(text, font=font) <= maxw:
-        return [text]
-    words = text.split()
-    l1 = ""
-    for i, w in enumerate(words):
-        t = (l1 + " " + w).strip()
-        if d.textlength(t, font=font) <= maxw:
-            l1 = t
-        else:
-            return [l1, " ".join(words[i:])]
-    return [l1]
-
-
-TIPS_HIGH = ["10 dk meditasyon yap", "Nefes egzersizi yap", "2 kısa nefes, uzun ver",
-             "10 dk yürü, telefonsuz", "Kahveyi kes, su iç", "Yükü hafiflet",
-             "Omuzları indir", "19:00'da yat", "Sadece hafif yürü"]
-TIPS_MID  = ["5 dk nefes molası", "Kısa meditasyon", "Su iç, ayağa kalk", "Tempoyu düşür",
-             "Ekranı azalt", "Kısa yürüyüş", "Yavaş ye"]
-F_TINY = ImageFont.truetype(f"{FD}/DejaVuSans.ttf", 9)
-
-def draw_face(d, x, y, r, mood):
-    """r yarıçaplı yüz: happy / sad / stressed — kalın çizgili."""
-    cx, cy = x + r, y + r
-    d.ellipse((x, y, x + 2*r, y + 2*r), outline=0, width=2)
-    ey = cy - r*0.28
-    for ex in (cx - r*0.38, cx + r*0.38):
-        d.ellipse((ex-2, ey-2, ex+2, ey+2), fill=0)
-    if mood == "happy":
-        d.arc((cx - r*0.58, cy - r*0.15, cx + r*0.58, cy + r*0.7), 15, 165, fill=0, width=2)
-    elif mood == "sad":
-        d.arc((cx - r*0.6, cy + r*0.3, cx + r*0.6, cy + r*1.4), 195, 345, fill=0, width=2)
-    else:  # stressed: çatık kaşlar + dalgalı ağız
-        d.line((cx - r*0.62, ey - r*0.5, cx - r*0.18, ey - r*0.28), fill=0, width=2)
-        d.line((cx + r*0.62, ey - r*0.5, cx + r*0.18, ey - r*0.28), fill=0, width=2)
-        my = cy + r*0.48
-        pts = []
-        for i in range(7):
-            px = cx - r*0.58 + i * (r*1.16/6)
-            pts.append((px, my + (r*0.16 if i % 2 else -r*0.16)))
-        d.line(pts, fill=0, width=2)
-
-
-
-# ===== Beslenme + takviye (diyetisyen planı) =====
-OFF_DAYS = (5, 6)   # Cmt, Paz → karbonhidrat yarı
-def meal_text(name, wd):
-    off = wd in OFF_DAYS
-    if name.startswith("Öğün 1"): return f"Whey 30g · 1 yumurta · yulaf {40 if off else 80}g · çilek"
-    if name.startswith("Öğün 2"): return f"Tavuk/hindi 150g · pirinç {40 if off else 80}g · salata"
-    if name.startswith("Öğün 3"): return f"Tavuk/kıyma 150g · pirinç {40 if off else 80}g"
-    if name.startswith("Öğün 4"): return f"Mezgit/tavuk 150g · patates {120 if off else 250}g · sebze"
-    return None
-
-SUPP = [  # (saat, kısa ad)
-    ("04:15", "Psyllium (aç karnına)"),
-    ("04:45", "L-Karnitin"),
-    ("05:00", "EAA 10g + elektrolit"),
-    ("05:30", "Berberine 500 + krom"),
-    ("06:20", "Kreatin·D3K2·Omega3·Prebiyotik"),
-    ("11:00", "Berberine 500 + krom"),
-    ("18:45", "Magnezyum + çinko"),
-]
-
-def nutrition_line(now, st):
-    """Öncelik: takviye zamanı (−10/+20 dk) → şu anki öğün → sıradaki öğün."""
     cur = norm(now.hour * 60 + now.minute)
     wd = now.weekday()
-    for t, name in SUPP:
-        dt = cur - norm(to_min(t))
-        if -10 <= dt <= 20:
-            return f"Takviye {t}: {name}"
-    if st["cur_name"].startswith("Öğün"):
-        return "Şimdi: " + (meal_text(st["cur_name"], wd) or "")
-    best = None
-    for t, name in SCHEDULE:
-        if name.startswith("Öğün"):
-            m = norm(to_min(t))
-            if m > cur and (best is None or m < best[0]):
-                best = (m, t, name)
-    if best:
-        return f"{best[1]} {best[2].split(' ·')[0]}: {meal_text(best[2], wd)}"
-    return None
+    items = []
+    for t, kind, title, body in ITEMS:
+        items.append({"t": t, "m": norm(to_min(t)), "kind": kind, "title": title,
+                      "body": body if body is not None else meal_text(title, wd)})
+    def post(it): return POST_Y if it["kind"] == "Y" else POST_T
+    # ŞİMDİ: penceresi içindeki madde; öğün ile takviye çakışırsa öğün öne çıkar
+    live = [i for i, it in enumerate(items) if it["m"] - PRE <= cur <= it["m"] + post(it)]
+    meals = [i for i in live if items[i]["kind"] == "Y"]
+    active = (meals or live or [None])[-1]
+    upcoming = [i for i, it in enumerate(items) if it["m"] > cur]
+    focus = active if active is not None else (upcoming[0] if upcoming else None)
+    rest = [i for i, it in enumerate(items) if i != focus and it["m"] + post(it) >= cur]
+    nxt = rest[0] if rest else None
+    done = sum(1 for it in items if it["m"] + post(it) < cur)
+    cups = sum(1 for t in WATER_TIMES if norm(to_min(t)) <= cur)
+    next_cup = next((t for t in WATER_TIMES if norm(to_min(t)) > cur), None)
+    sleeping = focus is None or cur >= norm(to_min(SLEEP))
+    return {"cur": cur, "items": items, "active": active, "focus": focus, "nxt": nxt,
+            "done": done, "total": len(items), "cups": cups, "next_cup": next_cup,
+            "sleeping": sleeping}
+
 
 def render(now, st, W, H):
     img = Image.new("1", (W, H), 255)
     d = ImageDraw.Draw(img)
 
-    # ---- Üst siyah şerit ----
+    # ---- Üst siyah şerit: tarih · pil · saat ----
     d.rectangle((0, 0, W, 19), fill=0)
     hdr = f"{now.day} {MONTHS[now.month-1]} {DAYS[now.weekday()]}"
+    if now.weekday() in OFF_DAYS:
+        hdr += " · OFF"
     d.text((4, 2), hdr, font=F_HDR, fill=255)
     clock = now.strftime("%H:%M")
     cw = d.textlength(clock, font=F_HDR)
     d.text((W - cw - 4, 2), clock, font=F_HDR, fill=255)
-
-    # ---- Pil (UPS HAT) — saatin solunda ----
     bat = get_battery()
     if bat is not None:
         pct, charging = bat
-        x1 = W - cw - 14           # pil gövdesi sağ kenarı
+        x1 = W - cw - 14
         bw2, bh = 22, 11
         x0, y0 = x1 - bw2, 4
         d.rectangle((x0, y0, x1, y0 + bh), outline=255, width=1)
-        d.rectangle((x1 + 1, y0 + 3, x1 + 3, y0 + bh - 3), fill=255)   # uç
+        d.rectangle((x1 + 1, y0 + 3, x1 + 3, y0 + bh - 3), fill=255)
         fw2 = int((bw2 - 4) * pct / 100)
         if fw2 > 0:
             d.rectangle((x0 + 2, y0 + 2, x0 + 2 + fw2, y0 + bh - 2), fill=255)
@@ -335,104 +188,68 @@ def render(now, st, W, H):
         lw = d.textlength(label, font=F_BADGE)
         d.text((x0 - lw - 5, 3), label, font=F_BADGE, fill=255)
 
-    # ---- Rozet: ŞİMDİ + kalan süre ----
-    badge = "ŞİMDİ"
+    def fit(txt, x, y, font, small, maxw):
+        f = font
+        if d.textlength(txt, font=f) > maxw:
+            f = small
+        while d.textlength(txt, font=f) > maxw and len(txt) > 4:
+            txt = txt[:-2].rstrip() + "…"
+        d.text((x, y + (0 if f is font else 1)), txt, font=f, fill=0)
+
+    items = st["items"]
+    # ---- Rozet + başlık ----
+    if st["sleeping"]:
+        badge, sub = "UYKU", f"Uyanış {WAKE} · Psyllium"
+        title, body = "İyi uykular", "Su ve takviyeler bugün bitti"
+    else:
+        it = items[st["focus"]]
+        tag = "TAKVİYE" if it["kind"] == "T" else "ÖĞÜN"
+        if st["active"] is not None:
+            badge, sub = "ŞİMDİ", f"{it['t']} · {tag}"
+        else:
+            wait = it["m"] - st["cur"]
+            h, m = divmod(wait, 60)
+            badge = "SIRADAKİ"
+            sub = f"{it['t']} · {h} sa {m} dk sonra" if h else f"{it['t']} · {m} dk sonra"
+        title, body = it["title"], it["body"]
     bw = d.textlength(badge, font=F_BADGE)
     d.rounded_rectangle((4, 24, 4 + bw + 10, 40), radius=4, fill=0)
     d.text((9, 26), badge, font=F_BADGE, fill=255)
-    h, m = divmod(st["wait"], 60)
-    kalan = f"Kalan: {h} sa {m} dk" if h else f"Kalan: {m} dk"
-    d.text((4 + bw + 16, 24), kalan, font=F_TIME, fill=0)
+    fit(sub, 4 + bw + 16, 24, F_TIME, F_MINI, W - bw - 24)
 
-    # ---- Sağ üst: stres yüzü + yüzde ----
-    hz = get_health()
-    face_w = 0
-    if hz:
-        _, _, _, spct = hz
-        mood = "happy" if spct < 35 else ("sad" if spct < 65 else "stressed")
-        fr = 18                       # yüz yarıçapı (36 px)
-        fx, fy = W - 2*fr - 2, 21     # sağ üst köşe
-        draw_face(d, fx, fy, fr, mood)
-        ptxt = f"%{spct}"
-        pw2 = d.textlength(ptxt, font=F_BADGE)
-        d.text((fx + fr - pw2/2, fy + 2*fr + 1), ptxt, font=F_BADGE, fill=0)
-        face_w = 2*fr + 12
+    fit(title, 4, 43, F_TITLE, F_TIME, W - 8)
+    fit(body, 4, 67, F_MINI, F_TINY, W - 8)
 
-    # ---- Şu anki iş (büyük; 1-2 satır) ----
-    lines = wrap2(d, st["cur_name"], F_TITLE, W - 18 - face_w)
-    tf, step = F_TITLE, 22
-    if len(lines) > 1:
-        lines = wrap2(d, st["cur_name"], F_TITLE2, W - 18 - face_w)
-        tf, step = F_TITLE2, 19
-    y = 44
-    for i, ln in enumerate(lines):
-        if i == 0:
-            d.text((4, y + 4), "▶", font=F_MINI, fill=0)
-        d.text((16, y - 1), ln, font=tf, fill=0)
-        y += step
+    # ---- Sonraki madde ----
+    if st["nxt"] is not None:
+        n = items[st["nxt"]]
+        fit(f"→ {n['t']}  {n['title']}", 4, 81, F_MINI, F_TINY, W - 8)
 
-    def current_tip():
-        if not hz:
-            return None
-        spct = hz[3]
-        if spct >= 65:
-            return TIPS_HIGH[now.hour % len(TIPS_HIGH)]
-        if spct >= 35:
-            return TIPS_MID[now.hour % len(TIPS_MID)]
-        return None
-    tip = current_tip()
-    def draw_water(y):
-        d.text((4, y + 1), "Su", font=F_MINI, fill=0)
-        x = 24
-        litre = st["water"]
-        for i in range(WATER_CUPS):
-            frac = max(0.0, min(1.0, litre - i))
-            # bardak gövdesi (12×13)
-            d.rectangle((x, y, x + 11, y + 12), outline=0, width=1)
-            fh = int(round(11 * frac))
-            if fh > 0:
-                d.rectangle((x + 1, y + 12 - fh, x + 10, y + 11), fill=0)
-            x += 15
-        ltxt = f"{litre:.1f} L".replace(".", ",")
-        d.text((x + 2, y + 1), ltxt, font=F_MINI, fill=0)
-        # tavsiye (stres ≥ %35): sağa yaslı, sığmazsa küçük font
-        if tip:
-            avail = W - 4 - (x + 2 + d.textlength(ltxt, font=F_MINI) + 8)
-            f = F_MINI if d.textlength(tip, font=F_MINI) <= avail else F_TINY
-            tw = d.textlength(tip, font=f)
-            d.text((W - tw - 4, y + (1 if f is F_MINI else 3)), tip, font=f, fill=0)
-    def fit_text(txt, y):
-        f = F_MINI
-        if d.textlength(txt, font=f) > W - 8:
-            f = F_TINY
-        while d.textlength(txt, font=f) > W - 8 and len(txt) > 4:
-            txt = txt[:-2].rstrip() + "…"
-        d.text((4, y + (0 if f is F_MINI else 1)), txt, font=f, fill=0)
-    info = nutrition_line(now, st)
-    if len(lines) == 1:
-        d.text((4, 68), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
-        if info:
-            fit_text(info, 79)
-        else:
-            d.text((4, 79), f"→ {st['nxt2_start']}  {st['nxt2_name']}", font=F_MINI, fill=0)
-        draw_water(91)
-    else:
-        if info and (info.startswith("Takviye") or info.startswith("Şimdi")):
-            fit_text(info, 81)
-        else:
-            d.text((4, 81), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
-        draw_water(93)
+    # ---- Su: 8 bardak × 0,5 L ----
+    y = 95
+    d.text((4, y), "Su", font=F_MINI, fill=0)
+    x = 24
+    for i in range(len(WATER_TIMES)):
+        d.rectangle((x, y, x + 10, y + 11), outline=0, width=1)
+        if i < st["cups"]:
+            d.rectangle((x + 1, y + 1, x + 9, y + 10), fill=0)
+        x += 14
+    litre = st["cups"] * 0.5
+    ltxt = f"{litre:.1f}/4 L".replace(".", ",")
+    if st["next_cup"]:
+        ltxt += f" · {st['next_cup']}"
+    fit(ltxt, x + 3, y, F_MINI, F_TINY, W - x - 7)
 
-    # ---- Alt: solda şu anki işin ilerleme barı, sağda genel x/x ----
-    d.line((0, H - 14, W, H - 14), fill=0, width=1)
+    # ---- Alt: günün beslenme ilerlemesi ----
+    d.line((0, H - 12, W, H - 12), fill=0, width=1)
     prog = f"{st['done']}/{st['total']}"
     pw = d.textlength(prog, font=F_FOOT)
-    d.text((W - pw - 4, H - 13), prog, font=F_FOOT, fill=0)
-    bar_w = W - int(pw) - 18        # bar, x/x yazısına kadar uzanır
-    d.rectangle((4, H - 11, 4 + bar_w, H - 4), outline=0, width=1)
-    fill_w = int(bar_w * st["pct"])
+    d.text((W - pw - 4, H - 12), prog, font=F_FOOT, fill=0)
+    bar_w = W - int(pw) - 18
+    d.rectangle((4, H - 9, 4 + bar_w, H - 3), outline=0, width=1)
+    fill_w = int(bar_w * st["done"] / st["total"])
     if fill_w > 1:
-        d.rectangle((4, H - 11, 4 + fill_w, H - 4), fill=0)
+        d.rectangle((4, H - 9, 4 + fill_w, H - 3), fill=0)
     return img
 
 
@@ -446,9 +263,9 @@ def main():
     while True:
         now = datetime.now()
         st = state(now)
-        # Uykuda 30 dk'da bir; diğer bloklarda her dakika
+        # Uykuda 30 dk'da bir; diğer zamanlarda her dakika
         minute_key = now.minute if not st["sleeping"] else (now.minute // 30)
-        key = (st["cur_name"], now.hour, minute_key)
+        key = ((st["focus"], st["active"] is not None, st["cups"]), now.hour, minute_key)
 
         if key != last_key:
             img = render(now, st, W, H)

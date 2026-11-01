@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rutin Panosu</title>
+<title>Beslenme Panosu</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d1117">
 <link rel="icon" href="icon-192.png">
@@ -12,61 +12,67 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { width:100%; height:100%; overflow:hidden; background:#0d1117;
     font-family:'Segoe UI','DejaVu Sans',Arial,sans-serif; color:#e6edf3;
-    -webkit-user-select:none; user-select:none; cursor:none; }
+    -webkit-user-select:none; user-select:none; cursor:none; -webkit-tap-highlight-color:transparent; }
   #app { display:flex; width:100%; height:100%; }
 
   /* ---- SOL PANEL ---- */
-  #left { width:55%; height:100%; padding:2.2vh 2vw; display:flex; flex-direction:column;
+  #left { width:52%; height:100%; padding:2.2vh 2vw; display:flex; flex-direction:column;
     background:linear-gradient(160deg,#16213e,#0d1117 70%); border-right:1px solid #21262d; }
   #clock { font-size:9.5vh; font-weight:800; line-height:1; letter-spacing:0.02em; }
   #date { font-size:2.6vh; color:#8b949e; margin-top:0.6vh; }
-  #wx { font-size:2.2vh; color:#8b949e; margin-top:1vh; }
-  #moonZone { margin-top:3vh; text-align:center; }
-  #moonBig { font-size:15vh; line-height:1; }
-  #moonTxt { font-size:2.3vh; color:#8b949e; margin-top:0.8vh; }
-  #sun { font-size:2.2vh; color:#8b949e; margin-top:0.5vh; }
-  #mealInfo { font-size:2.4vh; color:#d4a017; margin-top:1.4vh; line-height:1.4; }
-  #mealInfo b { color:#e8c766; }
-  #water { margin-top:1.2vh; font-size:2.2vh; color:#8b949e; display:flex; align-items:center; gap:0.5vw; flex-wrap:wrap; }
-  #water .cup { width:1.9vh; height:2.3vh; }
-  #water .cup path { fill:none; stroke:#58a6ff; stroke-width:1.2; }
-  #water .cup.full path { fill:#58a6ff; }
-  #water .cup.due path { stroke:#ffa657; }
-  #water .txt { margin-left:0.4vw; }
-  #nowLabel { margin-top:3.2vh; display:inline-block; }
+  #wx, #sun { font-size:2.2vh; color:#8b949e; margin-top:0.6vh; }
+  #nowLabel { margin-top:3vh; display:flex; align-items:center; gap:1vw; }
   #nowLabel span { background:#e6edf3; color:#0d1117; font-size:2vh; font-weight:800;
     padding:0.5vh 1vw; border-radius:0.8vh; letter-spacing:0.12em; }
-  #nowName { font-size:6.4vh; font-weight:800; line-height:1.12; margin-top:1.2vh; }
-  #nowDesc { font-size:2.1vh; color:#8b949e; margin-top:0.6vh; line-height:1.35; }
-  #remain { font-size:2.9vh; color:#ffa657; font-weight:700; margin-top:1vh; }
-  #barWrap { margin-top:1.6vh; height:2.4vh; background:#21262d; border-radius:1.2vh; overflow:hidden; }
-  #bar { height:100%; width:0%; background:linear-gradient(90deg,#238636,#2ea043); border-radius:1.2vh;
-    transition:width 1s linear; }
-  #nexts { margin-top:auto; padding-top:2vh; }
-  .nx { font-size:2.5vh; color:#8b949e; padding:0.7vh 0; }
-  .nx b { color:#e6edf3; font-weight:600; }
-  #prog { font-size:2.2vh; color:#484f58; margin-top:1.2vh; }
+  #nowLabel.supp span { background:#a371f7; color:#0d1117; }
+  #nowLabel.meal span { background:#d4a017; }
+  #nowLabel em { font-style:normal; font-size:2.6vh; color:#ffa657; font-weight:700; }
+  #nowName { font-size:6.2vh; font-weight:800; line-height:1.12; margin-top:1.2vh; }
+  #nowDesc { font-size:2.5vh; color:#c9d1d9; margin-top:0.8vh; line-height:1.4; }
+  #nowBtn { margin-top:1.6vh; align-self:flex-start; font:inherit; font-size:2.4vh; font-weight:700;
+    background:#238636; color:#fff; border:0; border-radius:1vh; padding:1.1vh 2vw; }
+  #nowBtn.on { background:#21262d; color:#8b949e; }
+  #moonZone { margin-top:2.4vh; display:flex; align-items:center; gap:1.2vw; }
+  #moonBig { font-size:6vh; line-height:1; }
+  #moonTxt { font-size:2.2vh; color:#8b949e; }
+  #waterBox { margin-top:auto; }
+  #waterHdr { font-size:2.2vh; color:#8b949e; margin-bottom:0.8vh; }
+  #waterHdr b { color:#58a6ff; }
+  #water { display:flex; gap:0.7vw; }
+  #water .cup { flex:1; height:6.5vh; display:flex; flex-direction:column; align-items:center; gap:0.3vh;
+    background:none; border:0; color:#8b949e; font:inherit; font-size:1.6vh; padding:0; }
+  #water svg { height:4.6vh; width:auto; }
+  #water path { fill:none; stroke:#58a6ff; stroke-width:1.2; }
+  #water .cup.on path { fill:#58a6ff; }
+  #water .cup.due path { stroke:#ffa657; }
+  #water .cup.due { color:#ffa657; }
+  #prog { font-size:2.2vh; color:#484f58; margin-top:1.4vh; }
+  #barWrap { margin-top:0.8vh; height:1.6vh; background:#21262d; border-radius:0.8vh; overflow:hidden; }
+  #bar { height:100%; width:0%; background:linear-gradient(90deg,#238636,#2ea043); transition:width .6s; }
 
   /* ---- SAĞ LİSTE ---- */
-  #right { flex:1; height:100%; padding:1.6vh 1.4vw; overflow:hidden;
-    display:flex; flex-direction:column; }
+  #right { flex:1; height:100%; padding:1.6vh 1.4vw; overflow:hidden; display:flex; flex-direction:column; }
   #rTitle { font-size:2vh; font-weight:800; letter-spacing:0.14em; color:#484f58; padding:0 0 1vh 0.6vw; }
-  #list { flex:1; display:flex; flex-direction:column; gap:0.45vh; }
-  .blk { flex:1 1 0; min-height:0; display:grid; grid-template-columns:6.5vw 1fr auto;
-    align-items:center; padding:0 1vw; border-radius:0.9vh;
-    background:#161b22; border-left:0.45vw solid #30363d; }
-  .blk .t { font-size:2.3vh; font-weight:800; color:#8b949e; font-variant-numeric:tabular-nums; }
-  .blk .n { font-size:2.2vh; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .blk .d { font-size:1.9vh; color:#484f58; font-variant-numeric:tabular-nums; }
-  .blk.meal  { border-left-color:#d4a017; }
-  .blk.work  { border-left-color:#2ea043; }
-  .blk.train { border-left-color:#f85149; }
-  .blk.yoga { border-left-color:#a371f7; }
-  .blk.sleep { border-left-color:#d0703f; }
-  .blk.past { opacity:0.32; }
-  .blk.now { background:#e6edf3; }
-  .blk.now .t, .blk.now .n { color:#0d1117; }
-  .blk.now .d { color:#57606a; }
+  #list { flex:1; display:flex; flex-direction:column; gap:0.5vh; }
+  .it { flex:1 1 0; min-height:0; display:grid; grid-template-columns:6.2vw 1fr 4.6vh;
+    align-items:center; gap:0 0.8vw; padding:0 1vw; border-radius:0.9vh; width:100%; text-align:left;
+    background:#161b22; border:0; border-left:0.45vw solid #30363d; color:inherit; font:inherit; }
+  .it.Y { border-left-color:#d4a017; }
+  .it.T { border-left-color:#a371f7; }
+  .it .t { font-size:2.3vh; font-weight:800; color:#8b949e; font-variant-numeric:tabular-nums; }
+  .it .tx { min-width:0; }
+  .it .n { font-size:2.3vh; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .it .d { font-size:1.75vh; color:#6e7681; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .it .ck { width:3.6vh; height:3.6vh; border-radius:0.8vh; border:0.25vh solid #484f58;
+    display:grid; place-items:center; font-size:2.4vh; font-weight:800; color:#0d1117; }
+  .it.done { opacity:0.45; }
+  .it.done .ck { background:#2ea043; border-color:#2ea043; }
+  .it.done .n { text-decoration:line-through; }
+  .it.miss .ck { border-color:#f85149; }
+  .it.miss .t { color:#f85149; }
+  .it.now { background:#e6edf3; opacity:1; }
+  .it.now .t, .it.now .n { color:#0d1117; }
+  .it.now .d { color:#57606a; }
 
   /* ---- GECE MODU ---- */
   body.night #app { display:none; }
@@ -75,7 +81,7 @@
     flex-direction:column; align-items:center; justify-content:center; background:#000; }
   #nMoon { font-size:9vh; opacity:0.5; margin-bottom:1vh; }
   #nClock { font-size:16vh; font-weight:200; color:#3d444d; letter-spacing:0.04em; }
-  #nInfo { font-size:3vh; color:#21262d; margin-top:2vh; }
+  #nInfo { font-size:3vh; color:#30363d; margin-top:2vh; text-align:center; line-height:1.5; }
 </style>
 </head>
 <body>
@@ -84,26 +90,21 @@
     <div id="clock">--:--</div>
     <div id="date">—</div>
     <div id="wx">—</div>
-    <div id="sun">—</div>
-    <div id="nowLabel"><span>ŞİMDİ</span></div>
+    <div id="sun"></div>
+    <div id="nowLabel"><span>ŞİMDİ</span><em></em></div>
     <div id="nowName">—</div>
     <div id="nowDesc"></div>
-    <div id="remain">—</div>
-    <div id="barWrap"><div id="bar"></div></div>
-    <div id="moonZone">
-      <div id="moonBig">—</div>
-      <div id="moonTxt">—</div>
-    </div>
-    <div id="mealInfo">—</div>
-    <div id="water"></div>
-    <div id="nexts">
-      <div class="nx" id="nx1">—</div>
-      <div class="nx" id="nx2">—</div>
+    <button id="nowBtn" type="button">✓ Aldım</button>
+    <div id="moonZone"><div id="moonBig">—</div><div id="moonTxt">—</div></div>
+    <div id="waterBox">
+      <div id="waterHdr">Su</div>
+      <div id="water"></div>
       <div id="prog">—</div>
+      <div id="barWrap"><div id="bar"></div></div>
     </div>
   </div>
   <div id="right">
-    <div id="rTitle">GÜNLÜK PLAN · GECE DÜZENİ</div>
+    <div id="rTitle">BESLENME · TAKVİYE · SU</div>
     <div id="list"></div>
   </div>
 </div>
@@ -114,193 +115,152 @@
 </div>
 
 <script>
-const BUILD = "20261014-0655";
-// ===== PLAN =====
-const SCHEDULE = [
-  { s:"04:15", n:"Uyanış & Hazırlık", c:"" },
-  { s:"04:30", n:"Tempolu Yürüyüş", c:"train", walk:true },
-  { s:"05:00", n:"Antrenman", c:"train", split:true },
-  { s:"06:00", n:"Öğün 1", c:"meal" },
-  { s:"06:20", n:"Duş & Hazırlık", c:"" },
-  { s:"06:30", n:"Atölye 1'e Gidiş", c:"" },
-  { s:"07:00", n:"İş — Atölye 1", c:"work" },
-  { s:"09:00", n:"Öğün 2 · Mola", c:"meal" },
-  { s:"09:20", n:"İş — Atölye 1", c:"work" },
-  { s:"11:30", n:"Öğün 3", c:"meal" },
-  { s:"12:00", n:"İş — Atölye 1", c:"work" },
-  { s:"13:45", n:"Günü Kapat · Yarını Planla", c:"work" },
-  { s:"14:00", n:"Eve Dönüş", c:"" },
-  { s:"14:30", n:"Serbest / Dinlenme", c:"" },
-  { s:"15:30", n:"Öğün 4", c:"meal" },
-  { s:"16:00", n:"Sindirim · Hafif Yürüyüş", c:"" },
-  { s:"16:15", n:"Soğuk Duş / Buteyko Nefes", c:"" },
-  { s:"16:30", n:"Kitap Okuma", c:"yoga" },
-  { s:"17:15", n:"Serbest / Tampon", c:"" },
-  { s:"18:45", n:"Trataka Meditasyonu · Yatış", c:"" },
-  { s:"19:00", n:"UYKU", c:"sleep" },
+const BUILD = "20261101-2010";
+// ===== BESLENME PLANI (diyetisyen) — e-ink ile aynı =====
+const DAY_START = 315;   // gün 05:15 (uyanış 05:30)
+const WAKE = "05:30", SLEEP = "20:15";
+const OFF_DAYS = [6, 0]; // Cmt, Paz → karbonhidrat yarı
+const WATER_TIMES = ["05:30","06:15","07:15","09:15","10:15","12:45","14:45","17:30"];  // 8 × 0,5 L
+// [saat, tür (T=takviye, Y=yemek), başlık, içerik(null=öğün içeriği)]
+const ITEMS = [
+  ["05:30","T","Psyllium","1 servis + büyük bardak su · aç karnına, diğer takviyelerden ayrı"],
+  ["06:00","T","L-Karnitin","1 servis · antrenmandan önce"],
+  ["06:15","T","EAA + elektrolit","EAA 10 g + izotonik elektrolit 1 ölçek · antrenman boyunca"],
+  ["06:45","T","Berberine + krom","Berberine 500 mg + krom pikolinat · Öğün 1'den 30 dk önce"],
+  ["07:15","Y","Öğün 1",null],
+  ["07:35","T","Sabah takviyeleri","Kreatin 5 g · D3K2 4000 IU · Omega-3 1000 mg · Prebiyotik"],
+  ["10:15","Y","Öğün 2",null],
+  ["12:15","T","Berberine + krom","Berberine 500 mg + krom pikolinat · Öğün 3'ten 30 dk önce"],
+  ["12:45","Y","Öğün 3",null],
+  ["16:45","Y","Öğün 4",null],
+  ["20:00","T","Magnezyum + çinko","Magnezyum 250 mg · Çinko bisglisinat 40 mg · yatmadan önce"],
 ];
-const WATER_TIMES = ["04:15","05:00","06:00","08:00","09:00","11:30","13:30","16:15"];
-const PROGRAM = {
-  1: { n:"İtiş · Göğüs/Omuz/Arka kol", d:"Isınma: arm + shoulder circles 3 tur · Incline bench 4×6-8 · Incline DB press 3×8-10 · DB fly 3×10-12 · Bench dips 3×10 · Lateral raise 4×12-15 · DB triceps ext 3×10 · Overhead DB ext 3×10 · Soğuma: göğüs esneme" },
-  2: { n:"Çekiş · Sırt/Ön kol", d:"Isınma: pelvik tilt + cat cow · Pull up 3×8 · Barbell row 4×6-8 · DB row 3×10-12 (tek) · DB pullover 3×10-12 · Shrug 4×10-12 · EZ curl 4×8-10 · Hammer curl 4×10-12 · Soğuma: hamstring + omuz esneme" },
-  3: { n:"HIIT · Tüm vücut süperset", d:"Isınma: jumping jack + high knees · SS DB squat press + goblet squat 3×10-15 · SS RDL + barbell row 3×10 · SS push up + renegade row 3×10-15 · SS alt. curl + DB shoulder press 3×10-15 · SS leg raise + crunch 3×10-15 · Soğuma: quad + hamstring" },
-  4: { n:"Üst Bölge", d:"Isınma: arm + shoulder circles · Incline bench 4×8 · Barbell row 3×10 · DB shoulder press 3×10-12 · SS lateral + front raise 3×12 · EZ lying triceps 3×10 · EZ curl 3×10 · Push up 2×max · Soğuma: göğüs esneme + cat cow" },
-  5: { n:"Bacak", d:"Isınma: lunge stretch + knee to chest · Barbell squat 4×6-8 · RDL 4×8-10 · Lunge 3×12 (tek, DB) · Bulgarian split squat 3×10 · Calf raise 4×12-15 · Wall sit 2×45 sn (tükeniş) · Soğuma: quad + hamstring" },
-  6: { n:"Kardiyo · 45 dk Tempolu Yürüyüş", d:"45 dk brisk walking, nabız 110-130 · koşu bandı / bisiklet / dışarıda yürüyüş" },
-  0: { n:"Kardiyo Günü · 45 dk Yürüyüş", d:"45 dk brisk walking, nabız 110-130 · rahat tempo" },
-};
-const SUPP = {"Uyanış & Hazırlık": "Psyllium husk 1 servis + büyük bardak su (aç karnına, diğer takviyelerden ayrı)", "Tempolu Yürüyüş": "L-Carnitine 1 servis (antrenman öncesi)", "Antrenman": "Antrenman içi: EAA 10 g + izotonik elektrolit 1 ölçek", "Öğün 1": "Kreatin 5 g · Berberine 500 mg · Krom pikolinat · sonra: Omega-3 1000 mg · D3K2 4000 IU · Prebiyotik", "Öğün 3": "Berberine 500 mg · Krom pikolinat", "Serbest / Tampon": "17:30 Magnezyum 250 mg · Çinko bisglisinat 40 mg (aç değil, bir şey yemeden içme sorun olursa su ile)"};
-const DETAILS = [
-  "Su iç · tartı (aç karnına) · CP ölç: normal nefes ver, ilk nefes dürtüsüne kadar say (hedef 40 sn) · ışıkları aç",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "Kağıda 3 madde: bugün biten · yarın ilk 3 iş · Sarayçık'ta sıradaki adım — sonra atölyeyi kapat",
-  "",
-  "Ev · dinlenme, ekran az",
-  "",
-  "10-15 dk hafif yürüyüş · son öğün bitti, uykuya 3 saat · bundan sonra yemek yok",
-  "2-3 dk soğuk su · ardından Buteyko 4-9-10 ×10 tur, oturarak, burundan (4 sn al · 9 sn ver · boş akciğerle 10 sn tut) — hafif hava açlığı hedef, baş dönmesi olursa dur",
-  "45 dk kitap · ekran yok",
-  "Ev · serbest — iş yok, ekran az, yemek yok",
-  "Önce 4-7-8 ×4 (4 al · 7 tut · 8 ver) · sonra loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak · 2-3 dk gözler kapalı · yat",
-  "Karartma perdesi · 9 sa 15 dk",
-];
-const ZONE2_DAYS = [3, 6];   // Çar, Cmt → 60 dk Zone 2
-const REST_DAYS = [0];        // Paz → tam dinlenme   // JS getDay(): Paz=0, Per=4
-const DAY_START = 255;   // gün 04:15
+const PRE = 10, POST = { T:20, Y:30 };   // ŞİMDİ penceresi (dk)
+function mealContent(name, wd){
+  const off = OFF_DAYS.includes(wd);
+  if (name === "Öğün 1") return `30 g isolate whey + 1 yumurta + ${off?40:80} g yulaf + 60 g çilek · 520 kcal`;
+  if (name === "Öğün 2") return `150 g tavuk/hindi göğüs + ${off?40:80} g basmati + 5 g zeytinyağı + salata · 503 kcal`;
+  if (name === "Öğün 3") return `150 g tavuk göğüs / yağsız kıyma + ${off?40:80} g basmati + 5 g zeytinyağı · 525 kcal`;
+  if (name === "Öğün 4") return `150 g mezgit/tavuk + ${off?120:250} g patates + 5 g zeytinyağı + 100 g sebze · 435 kcal`;
+  return "";
+}
 const DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 const MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-
 const toMin = s => { const [h,m]=s.split(":").map(Number); return h*60+m; };
 const norm = m => (m - DAY_START + 1440) % 1440;
-const starts = SCHEDULE.map(b => norm(toMin(b.s)));
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,"0");
 
-function blkName(i, wd){
-  let n = SCHEDULE[i].n;
-  if (SCHEDULE[i].split) n = "Antrenman · " + PROGRAM[wd].n;
-  if (SCHEDULE[i].walk) n = (wd === 0 || wd === 6) ? "Hazırlık" : "Tempolu Yürüyüş · 20 dk";
-  return n;
+// ===== İşaretler: bu cihazda, güne göre (gün 05:15'te başlar) =====
+function dayKey(now){
+  const d = new Date(now.getTime() - DAY_START*60000);
+  return `pano:${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 }
-function blkDesc(i, wd){
-  let d = "";
-  if (SCHEDULE[i].split) d = PROGRAM[wd].d;
-  else if (SCHEDULE[i].walk) d = (wd === 0 || wd === 6) ? "Hafta sonu: yürüyüş 05:00'te 45 dk — bu blok serbest hazırlık" : "20 dk tempolu yürüyüş, nabız 110-130 · günlük hedef 10.000 adım";
-  else if (SCHEDULE[i].c === "meal") d = (mealContent(SCHEDULE[i].n, wd) || "") + " · 2 g tuz";
-  else d = DETAILS[i] || "";
-  const sp = SUPP[SCHEDULE[i].n.split(" · ")[0]];
-  return sp ? d + "  💊 " + sp : d;
+let key = null, marks = {};
+function loadMarks(now){
+  const k = dayKey(now);
+  if (k === key) return;
+  key = k;
+  try { marks = JSON.parse(localStorage.getItem(k) || "{}"); } catch(e){ marks = {}; }
 }
+function saveMarks(){ try { localStorage.setItem(key, JSON.stringify(marks)); } catch(e){} }
+function toggle(id){ marks[id] = !marks[id]; saveMarks(); render(); }
 
 function getState(now){
   const cur = norm(now.getHours()*60 + now.getMinutes());
-  const n = SCHEDULE.length;
-  let idx = n-1;
-  for (let i=0;i<n;i++){
-    const end = i+1<n ? starts[i+1] : 1440;
-    if (starts[i]<=cur && cur<end){ idx=i; break; }
-  }
-  const end = idx+1<n ? starts[idx+1] : 1440;
-  const wait = end - cur;
-  const dur = end - starts[idx];
-  const pct = dur>0 ? Math.min(100, Math.max(0,(cur-starts[idx])/dur*100)) : 0;
-  return { idx, wait, pct,
-    nxt1:(idx+1)%n, nxt2:(idx+2)%n,
-    sleeping: SCHEDULE[idx].n==="UYKU" };
+  const wd = now.getDay();
+  const items = ITEMS.map(([t,k,n,d],i)=>({ i, id:"i"+i, t, k, n, m:norm(toMin(t)),
+    d: d ?? mealContent(n, wd) }));
+  const live = items.filter(it => it.m - PRE <= cur && cur <= it.m + POST[it.k]);
+  const liveMeals = live.filter(it => it.k === "Y");
+  const active = (liveMeals.length ? liveMeals : live).slice(-1)[0] || null;
+  // odak: aktif madde, yoksa işaretlenmemiş ilk gelecek madde
+  const focus = active || items.find(it => it.m > cur) || null;
+  const sleeping = cur >= norm(toMin(SLEEP));   // 20:15 → 05:15 gece
+  return { cur, wd, items, active, focus, sleeping };
 }
 
-function fmtWait(m){
-  const h=Math.floor(m/60), mm=m%60;
-  return h ? `Kalan: ${h} sa ${mm} dk` : `Kalan: ${mm} dk`;
+function buildList(st){
+  $("list").innerHTML = st.items.map(it =>
+    `<button class="it ${it.k}" id="${it.id}" type="button">
+       <span class="t">${it.t}</span>
+       <span class="tx"><div class="n">${it.n}</div><div class="d"></div></span>
+       <span class="ck"></span>
+     </button>`).join("");
+  st.items.forEach(it => $(it.id).addEventListener("click", () => toggle(it.id)));
+  $("nowBtn").addEventListener("click", () => { const f = $("nowBtn").dataset.id; if (f) toggle(f); });
 }
 
-let listBuilt = false;
-function buildList(){
-  const el = document.getElementById("list");
-  el.innerHTML = SCHEDULE.map((b,i)=>
-    `<div class="blk ${b.c}" id="b${i}">
-       <span class="t">${b.s}</span><span class="n">${b.n}</span>
-       <span class="d"></span>
-     </div>`).join("");
-  listBuilt = true;
-}
-
+let built = false;
 function render(){
   const now = new Date();
-  const wd = now.getDay();
+  loadMarks(now);
   const st = getState(now);
-  const hh = String(now.getHours()).padStart(2,"0");
-  const mm = String(now.getMinutes()).padStart(2,"0");
+  const hh = pad(now.getHours()), mm = pad(now.getMinutes());
+  const nDone = st.items.filter(it => marks[it.id]).length;
+  const cups = WATER_TIMES.filter((_,i) => marks["w"+i]).length;
 
-  // Gece modu (uyku bloğu)
   document.body.classList.toggle("night", st.sleeping);
   if (st.sleeping){
-    document.getElementById("nClock").textContent = `${hh}:${mm}`;
-    const h=Math.floor(st.wait/60), m2=st.wait%60;
-    document.getElementById("nInfo").textContent = `Uyanış 04:15 · ${h} sa ${m2} dk`;
+    $("nClock").textContent = `${hh}:${mm}`;
+    $("nInfo").innerHTML = `Bugün ${nDone}/${st.items.length} · su ${(cups*0.5).toFixed(1).replace(".",",")} L<br>Uyanış ${WAKE} · Psyllium`;
     return;
   }
+  if (!built){ buildList(st); built = true; }
 
-  if (!listBuilt) buildList();
-  document.getElementById("clock").textContent = `${hh}:${mm}`;
-  document.getElementById("date").textContent =
-    `${now.getDate()} ${MONTHS[now.getMonth()]} ${DAYS[wd]}`;
-  document.getElementById("nowName").textContent = blkName(st.idx, wd);
-  document.getElementById("remain").textContent = fmtWait(st.wait);
-  document.getElementById("nowDesc").textContent = blkDesc(st.idx, wd);
-  document.getElementById("bar").style.width = st.pct.toFixed(1)+"%";
-  document.getElementById("nx1").innerHTML =
-    `→ <b>${SCHEDULE[st.nxt1].s}</b> · ${blkName(st.nxt1, wd)}`;
-  document.getElementById("nx2").innerHTML =
-    `→ <b>${SCHEDULE[st.nxt2].s}</b> · ${blkName(st.nxt2, wd)}`;
-  document.getElementById("prog").textContent = `Bugün: ${st.idx}/${SCHEDULE.length} tamamlandı`;
-  updateMealInfo(st, wd);
-  updateWater(now);
+  $("clock").textContent = `${hh}:${mm}`;
+  $("date").textContent = `${now.getDate()} ${MONTHS[now.getMonth()]} ${DAYS[st.wd]}` +
+    (OFF_DAYS.includes(st.wd) ? " · Off gün" : "");
 
-  SCHEDULE.forEach((b,i)=>{
-    const el = document.getElementById("b"+i);
-    el.querySelector(".n").textContent = blkName(i, wd);
-    el.classList.toggle("now", i===st.idx);
-    el.classList.toggle("past", i<st.idx);
-  });
-}
-
-// ===== Öğün içerikleri (mutfak talimatına göre · gün rotasyonlu) =====
-// Diyetisyen planı · Off gün (Cmt, Paz) karbonhidrat yarıya iner · her öğünde 2 g tuz
-const OFF_DAYS = [6, 0];
-function mealContent(name, wd){
-  const off = OFF_DAYS.includes(wd);
-  if (name.startsWith("Öğün 1")) return `30 g isolate whey + 1 yumurta + ${off?40:80} g yulaf + 60 g çilek · 520 kcal`;
-  if (name.startsWith("Öğün 2")) return `150 g tavuk/hindi göğüs + ${off?40:80} g basmati + 5 g zeytinyağı + salata · 503 kcal`;
-  if (name.startsWith("Öğün 3")) return `150 g tavuk göğüs / yağsız kıyma + ${off?40:80} g basmati + 5 g zeytinyağı · 525 kcal`;
-  if (name.startsWith("Öğün 4")) return `150 g mezgit/tavuk + ${off?120:250} g patates + 5 g zeytinyağı + 100 g sebze · 435 kcal`;
-  return null;
-}
-function updateMealInfo(st, wd){
-  const el = document.getElementById("mealInfo");
-  const curName = SCHEDULE[st.idx].n;
-  if (SCHEDULE[st.idx].c === "meal"){
-    el.innerHTML = `🍽 <b>Şimdi:</b> ${mealContent(curName, wd) || curName}`;
-    return;
-  }
-  // aktiften sonraki ilk öğünü bul
-  const n = SCHEDULE.length;
-  for (let k=1; k<n; k++){
-    const i = (st.idx + k) % n;
-    if (SCHEDULE[i].c === "meal"){
-      const w2 = i < st.idx ? (wd + 1) % 7 : wd;   // gece sarması → ertesi gün
-      el.innerHTML = `🍽 <b>${SCHEDULE[i].s}</b> ${SCHEDULE[i].n}: ${mealContent(SCHEDULE[i].n, w2) || ""}`;
-      return;
+  // ---- Sol: şimdi / sıradaki ----
+  const f = st.focus;
+  if (f){
+    const lab = $("nowLabel");
+    lab.className = f.k === "Y" ? "meal" : "supp";
+    const tag = f.k === "Y" ? "ÖĞÜN" : "TAKVİYE";
+    if (st.active){
+      lab.querySelector("span").textContent = "ŞİMDİ · " + tag;
+      lab.querySelector("em").textContent = f.t;
+    } else {
+      const w = f.m - st.cur, h = Math.floor(w/60), m = w%60;
+      lab.querySelector("span").textContent = "SIRADAKİ · " + tag;
+      lab.querySelector("em").textContent = `${f.t} · ${h ? h+" sa " : ""}${m} dk sonra`;
     }
+    $("nowName").textContent = f.n;
+    $("nowDesc").textContent = f.d;
+    const b = $("nowBtn");
+    b.dataset.id = f.id;
+    b.classList.toggle("on", !!marks[f.id]);
+    b.textContent = marks[f.id] ? "✓ İşaretlendi · geri al" : (f.k === "Y" ? "✓ Yedim" : "✓ Aldım");
   }
-  el.textContent = "";
+
+  // ---- Sağ liste ----
+  st.items.forEach(it => {
+    const el = $(it.id);
+    el.querySelector(".d").textContent = it.d;
+    const done = !!marks[it.id];
+    el.classList.toggle("done", done);
+    el.classList.toggle("now", !done && st.active === it);
+    el.classList.toggle("miss", !done && st.cur > it.m + POST[it.k]);
+    el.querySelector(".ck").textContent = done ? "✓" : "";
+  });
+
+  // ---- Su: dokun → bardak dolar ----
+  const nextDue = WATER_TIMES.findIndex((t,i) => !marks["w"+i]);
+  $("water").innerHTML = WATER_TIMES.map((t,i) => {
+    const on = !!marks["w"+i];
+    const due = !on && st.cur >= norm(toMin(t)) - 10;
+    return `<button class="cup ${on?"on":""} ${due?"due":""}" data-i="${i}" type="button">
+      <svg viewBox="0 0 10 12"><path d="M1 0.5h8l-1.2 11H2.2z"/></svg>${t}</button>`;
+  }).join("");
+  $("water").querySelectorAll(".cup").forEach(c => c.addEventListener("click", () => toggle("w"+c.dataset.i)));
+  const behind = WATER_TIMES.filter((t,i) => !marks["w"+i] && st.cur >= norm(toMin(t))).length;
+  $("waterHdr").innerHTML = `Su <b>${(cups*0.5).toFixed(1).replace(".",",")} / 4 L</b>` +
+    (behind ? ` · ${behind} bardak geride` : (nextDue >= 0 ? ` · sıradaki ${WATER_TIMES[nextDue]}` : " · tamam"));
+
+  const total = st.items.length + WATER_TIMES.length, got = nDone + cups;
+  $("prog").textContent = `Bugün: ${nDone}/${st.items.length} öğün+takviye · ${cups}/8 bardak`;
+  $("bar").style.width = (got/total*100).toFixed(1) + "%";
 }
 
 // ===== Ay evresi (offline hesap) =====
@@ -333,7 +293,7 @@ function updateWx(){
       if (d.daily && d.daily.sunrise){
         const sr = d.daily.sunrise[0].slice(11,16);
         const ss = d.daily.sunset[0].slice(11,16);
-        document.getElementById("sun").textContent = `🌅 ${sr} doğuş · 🌇 ${ss} batış`;
+        document.getElementById("sun").textContent = `🌅 ${sr} · 🌇 ${ss}`;
       }
     }).catch(()=>{});
 }
@@ -355,25 +315,9 @@ keepAwake();
 render();
 updateWx();
 updateMoon();
-setInterval(render, 1000);
+setInterval(render, 15000);
 setInterval(updateWx, 30*60*1000);
 setInterval(updateMoon, 60*60*1000);
-
-// ===== Su rehberi: 7 × 0,5 L, saatlere dağıtılmış =====
-function updateWater(now){
-  const cur = norm(now.getHours()*60 + now.getMinutes());
-  let html = "", done = 0;
-  WATER_TIMES.forEach(t => {
-    const tn = norm(toMin(t));
-    const full = cur >= tn;
-    const due = !full && (tn - cur) <= 30;      // 30 dk içinde sıradaki bardak
-    if (full) done++;
-    html += `<svg class="cup ${full?"full":""} ${due?"due":""}" viewBox="0 0 10 12"><path d="M1 0.5h8l-1.2 11H2.2z"/></svg>`;
-  });
-  const nextT = WATER_TIMES.find(t => norm(toMin(t)) > cur);
-  html += `<span class="txt">${done}/${WATER_TIMES.length} · ${(done*0.5).toFixed(1).replace(".",",")} L${nextT ? " · sıradaki " + nextT : ""}</span>`;
-  document.getElementById("water").innerHTML = html;
-}
 
 // ===== Otomatik güncelleme: sunucudaki sürüm değiştiyse sayfayı yenile =====
 function checkUpdate(){
