@@ -83,29 +83,31 @@ else:
 
 # ===== GÜNLÜK PLAN (gece düzeni · 02:00 kalkış; gün 02:00'de başlar) =====
 SCHEDULE = [
-    ("03:00", "Uyanış"),
-    ("03:10", "Sabah Yürüyüşü · Zone 2"),
-    ("03:40", "Kahvaltı"),
-    ("04:00", "Atölye 1'e Gidiş"),
-    ("04:30", "İş — Atölye 1"),
-    ("09:00", "Mola · Nefes / Yürüyüş"),
-    ("09:10", "İş — Atölye 1"),
-    ("11:00", "Ana Yemek"),
-    ("11:30", "İş — Atölye 1"),
+    ("04:15", "Uyanış & Hazırlık"),
+    ("04:30", "Tempolu Yürüyüş"),
+    ("05:00", "Antrenman"),
+    ("06:00", "Öğün 1"),
+    ("06:20", "Duş & Hazırlık"),
+    ("06:30", "Atölye 1'e Gidiş"),
+    ("07:00", "İş — Atölye 1"),
+    ("09:00", "Öğün 2 · Mola"),
+    ("09:20", "İş — Atölye 1"),
+    ("11:30", "Öğün 3"),
+    ("12:00", "İş — Atölye 1"),
     ("13:45", "Günü Kapat · Yarını Planla"),
     ("14:00", "Eve Dönüş"),
-    ("14:30", "Son Yemek"),
-    ("15:00", "Serbest / Sindirim"),
-    ("15:30", "Zone 2 Kardiyo"),
-    ("16:15", "Soğuk Duş / Meditasyon"),
+    ("14:30", "Serbest / Dinlenme"),
+    ("15:30", "Öğün 4"),
+    ("16:00", "Sindirim · Yürüyüş"),
+    ("16:15", "Soğuk Duş / Buteyko Nefes"),
     ("16:30", "Kitap Okuma"),
     ("17:15", "Serbest / Tampon"),
     ("18:45", "Trataka Meditasyonu · Yatış"),
     ("19:00", "UYKU"),
 ]
-ZONE2_DAYS = (5, 6)   # Cmt, Paz → Zone 2
+ZONE2_DAYS = (2, 5)   # Çar, Cmt → 60 dk Zone 2
 REST_DAYS = (6,)      # Paz → dinlenme   # Per=3, Paz=6 → antrenman "Dinlenme"
-DAY_START = 3 * 60   # gün 03:00'de başlar
+DAY_START = 4 * 60 + 15   # gün 04:15'te başlar
 WATER_CUPS = 4          # 4 bardak × 1 L
 WATER_FULL_AT = "16:00" # bu saatte hepsi dolu
 
@@ -176,9 +178,13 @@ def norm(m):
     return (m - DAY_START) % (24 * 60)
 
 
+PROGRAM = {0: 'İtiş', 1: 'Çekiş', 2: 'HIIT', 3: 'Üst Bölge', 4: 'Bacak', 5: 'Kardiyo 45dk', 6: 'Kardiyo 45dk'}
+
 def day_name_fix(name, weekday):
-    if name.startswith("Zone 2"):
-        return "Zone 2 Kardiyo 40dk" if weekday in ZONE2_DAYS else "Serbest / Dinlenme"
+    if name == "Antrenman":
+        return "Antr: " + PROGRAM[weekday]
+    if name == "Tempolu Yürüyüş":
+        return "Hazırlık" if weekday >= 5 else "Tempolu Yürüyüş 20dk"
     return name
 
 
@@ -259,6 +265,47 @@ def draw_face(d, x, y, r, mood):
             pts.append((px, my + (r*0.16 if i % 2 else -r*0.16)))
         d.line(pts, fill=0, width=2)
 
+
+
+# ===== Beslenme + takviye (diyetisyen planı) =====
+OFF_DAYS = (5, 6)   # Cmt, Paz → karbonhidrat yarı
+def meal_text(name, wd):
+    off = wd in OFF_DAYS
+    if name.startswith("Öğün 1"): return f"Whey 30g · 1 yumurta · yulaf {40 if off else 80}g · çilek"
+    if name.startswith("Öğün 2"): return f"Tavuk/hindi 150g · pirinç {40 if off else 80}g · salata"
+    if name.startswith("Öğün 3"): return f"Tavuk/kıyma 150g · pirinç {40 if off else 80}g"
+    if name.startswith("Öğün 4"): return f"Mezgit/tavuk 150g · patates {120 if off else 250}g · sebze"
+    return None
+
+SUPP = [  # (saat, kısa ad)
+    ("04:15", "Psyllium (aç karnına)"),
+    ("04:45", "L-Karnitin"),
+    ("05:00", "EAA 10g + elektrolit"),
+    ("05:30", "Berberine 500 + krom"),
+    ("06:20", "Kreatin·D3K2·Omega3·Prebiyotik"),
+    ("11:00", "Berberine 500 + krom"),
+    ("18:45", "Magnezyum + çinko"),
+]
+
+def nutrition_line(now, st):
+    """Öncelik: takviye zamanı (−10/+20 dk) → şu anki öğün → sıradaki öğün."""
+    cur = norm(now.hour * 60 + now.minute)
+    wd = now.weekday()
+    for t, name in SUPP:
+        dt = cur - norm(to_min(t))
+        if -10 <= dt <= 20:
+            return f"Takviye {t}: {name}"
+    if st["cur_name"].startswith("Öğün"):
+        return "Şimdi: " + (meal_text(st["cur_name"], wd) or "")
+    best = None
+    for t, name in SCHEDULE:
+        if name.startswith("Öğün"):
+            m = norm(to_min(t))
+            if m > cur and (best is None or m < best[0]):
+                best = (m, t, name)
+    if best:
+        return f"{best[1]} {best[2].split(' ·')[0]}: {meal_text(best[2], wd)}"
+    return None
 
 def render(now, st, W, H):
     img = Image.new("1", (W, H), 255)
@@ -354,12 +401,26 @@ def render(now, st, W, H):
             f = F_MINI if d.textlength(tip, font=F_MINI) <= avail else F_TINY
             tw = d.textlength(tip, font=f)
             d.text((W - tw - 4, y + (1 if f is F_MINI else 3)), tip, font=f, fill=0)
+    def fit_text(txt, y):
+        f = F_MINI
+        if d.textlength(txt, font=f) > W - 8:
+            f = F_TINY
+        while d.textlength(txt, font=f) > W - 8 and len(txt) > 4:
+            txt = txt[:-2].rstrip() + "…"
+        d.text((4, y + (0 if f is F_MINI else 1)), txt, font=f, fill=0)
+    info = nutrition_line(now, st)
     if len(lines) == 1:
         d.text((4, 68), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
-        d.text((4, 79), f"→ {st['nxt2_start']}  {st['nxt2_name']}", font=F_MINI, fill=0)
+        if info:
+            fit_text(info, 79)
+        else:
+            d.text((4, 79), f"→ {st['nxt2_start']}  {st['nxt2_name']}", font=F_MINI, fill=0)
         draw_water(91)
     else:
-        d.text((4, 81), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
+        if info and (info.startswith("Takviye") or info.startswith("Şimdi")):
+            fit_text(info, 81)
+        else:
+            d.text((4, 81), f"→ {st['nxt_start']}  {st['nxt_name']}", font=F_MINI, fill=0)
         draw_water(93)
 
     # ---- Alt: solda şu anki işin ilerleme barı, sağda genel x/x ----
