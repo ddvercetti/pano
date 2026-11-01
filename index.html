@@ -152,11 +152,12 @@
 </div>
 
 <script>
-const BUILD = "20261101-2045";
+const BUILD = "20261101-2035";
 // ===== PLAN =====
 const SCHEDULE = [
   { s:"05:30", n:"Uyanış & Hazırlık", c:"", d:"Su iç · tartı (aç karnına) · CP ölç: normal nefes ver, ilk nefes dürtüsüne kadar say (hedef 40 sn) · ışıkları aç" },
   { s:"05:40", n:"Antrenman", c:"train", split:true },
+  { s:"06:10", n:"Tempolu Yürüyüş", c:"train", walk:true },
   { s:"06:30", n:"Öğün 1", c:"meal" },
   { s:"06:50", n:"Duş & Hazırlık", c:"" },
   { s:"07:00", n:"Atölye 1'e Gidiş", c:"" },
@@ -169,7 +170,7 @@ const SCHEDULE = [
   { s:"14:30", n:"Eve Dönüş", c:"" },
   { s:"15:00", n:"Serbest / Dinlenme", c:"", d:"Ev · dinlenme, ekran az" },
   { s:"16:30", n:"Öğün 4", c:"meal" },
-  { s:"17:00", n:"Tempolu Yürüyüş", c:"train", walk:true },
+  { s:"17:00", n:"Sindirim · Hafif Yürüyüş", c:"", d:"10-15 dk hafif yürüyüş · son öğün bitti, uykuya 3 saat · bundan sonra yemek yok" },
   { s:"17:20", n:"Soğuk Duş / Buteyko Nefes", c:"", d:"2-3 dk soğuk su · ardından Buteyko 4-9-10 ×10 tur, oturarak, burundan (4 sn al · 9 sn ver · boş akciğerle 10 sn tut) — hafif hava açlığı hedef, baş dönmesi olursa dur" },
   { s:"17:35", n:"Kitap Okuma", c:"yoga", d:"45 dk kitap · ekran yok" },
   { s:"18:20", n:"Serbest / Tampon", c:"", d:"Ev · serbest — iş yok, ekran az, yemek yok" },
@@ -214,13 +215,13 @@ const starts = SCHEDULE.map(b => norm(toMin(b.s)));
 function blkName(i, wd){
   let n = SCHEDULE[i].n;
   if (SCHEDULE[i].split) n = "Antrenman · " + PROGRAM[wd].n;
-  if (SCHEDULE[i].walk) n = (wd === 0 || wd === 6) ? "Hafif Yürüyüş" : "Tempolu Yürüyüş · 20 dk";
+  if (SCHEDULE[i].walk) n = (wd === 0 || wd === 6) ? "Kardiyo · devam" : "Tempolu Yürüyüş · 20 dk";
   return n;
 }
 function blkDesc(i, wd){
   let d = "";
   if (SCHEDULE[i].split) d = PROGRAM[wd].d;
-  else if (SCHEDULE[i].walk) d = (wd === 0 || wd === 6) ? "Hafta sonu: sabah 45 dk kardiyo yapıldı · burada 10-15 dk hafif sindirim yürüyüşü" : "Antrenörün 20 dk yürüyüşü · nabız 110-130 · son öğünden sonra sindirime de iyi · günlük hedef 10.000 adım";
+  else if (SCHEDULE[i].walk) d = (wd === 0 || wd === 6) ? "Hafta sonu: kardiyonun devamı · toplam 45-50 dk, nabız 110-130" : "Antrenörün 20 dk bitiş yürüyüşü · nabız 110-130 · günlük hedef 10.000 adım";
   else if (SCHEDULE[i].c === "meal") d = (mealContent(SCHEDULE[i].n, wd) || "") + " · 2 g tuz";
   else d = SCHEDULE[i].d || "";
   const a = starts[i], b = i+1 < starts.length ? starts[i+1] : 1440;
