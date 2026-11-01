@@ -85,20 +85,20 @@ else:
 DAY_START = 5 * 60 + 15        # gün 05:15'te başlar (uyanış 05:30)
 WAKE, SLEEP = "05:30", "20:15"
 OFF_DAYS = (5, 6)              # Cmt, Paz → karbonhidrat yarı
-WATER_TIMES = ["05:30", "06:15", "07:15", "09:15", "10:15", "12:45", "14:45", "17:30"]  # 8 × 0,5 L = 4 L
+WATER_TIMES = ["05:30", "06:00", "06:30", "08:30", "09:30", "12:00", "14:30", "17:00"]  # 8 × 0,5 L = 4 L
 
 # (saat, tür, başlık, içerik)  — içerik None ise gün tipine göre hesaplanır
 ITEMS = [
     ("05:30", "T", "Psyllium",           "Aç karnına, bol suyla"),
-    ("06:00", "T", "L-Karnitin",         "Antrenmandan önce"),
-    ("06:15", "T", "EAA + elektrolit",   "EAA 10 g · antrenman boyunca"),
-    ("06:45", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 1'den 30 dk önce"),
-    ("07:15", "Y", "Öğün 1",             None),
-    ("07:35", "T", "Sabah takviyeleri",  "Kreatin · D3K2 · Omega-3 · Prebiyotik"),
-    ("10:15", "Y", "Öğün 2",             None),
-    ("12:15", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 3'ten 30 dk önce"),
-    ("12:45", "Y", "Öğün 3",             None),
-    ("16:45", "Y", "Öğün 4",             None),
+    ("05:35", "T", "L-Karnitin",         "Antrenmandan önce"),
+    ("05:40", "T", "EAA + elektrolit",   "EAA 10 g · antrenman boyunca"),
+    ("06:00", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 1'den 30 dk önce"),
+    ("06:30", "Y", "Öğün 1",             None),
+    ("06:50", "T", "Sabah takviyeleri",  "Kreatin · D3K2 · Omega-3 · Prebiyotik"),
+    ("09:30", "Y", "Öğün 2",             None),
+    ("11:30", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 3'ten 30 dk önce"),
+    ("12:00", "Y", "Öğün 3",             None),
+    ("16:30", "Y", "Öğün 4",             None),
     ("20:00", "T", "Magnezyum + çinko",  "Yatmadan önce"),
 ]
 PRE, POST_T, POST_Y = 10, 20, 30     # "ŞİMDİ" penceresi (dk): takviye −10/+20, öğün −10/+30
@@ -149,7 +149,8 @@ def state(now):
     active = (meals or live or [None])[-1]
     upcoming = [i for i, it in enumerate(items) if it["m"] > cur]
     focus = active if active is not None else (upcoming[0] if upcoming else None)
-    rest = [i for i, it in enumerate(items) if i != focus and it["m"] + post(it) >= cur]
+    fm = items[focus]["m"] if focus is not None else cur
+    rest = [i for i, it in enumerate(items) if i != focus and it["m"] + post(it) >= cur and it["m"] >= fm]
     nxt = rest[0] if rest else None
     done = sum(1 for it in items if it["m"] + post(it) < cur)
     cups = sum(1 for t in WATER_TIMES if norm(to_min(t)) <= cur)
