@@ -97,7 +97,6 @@ ITEMS = [
     ("06:50", "T", "Öğün 1 sonrası",     "D3K2 · Kreatin 5 g · Prebiyotik"),
     ("09:30", "Y", "Öğün 2",             None),
     ("09:50", "T", "Omega-3",            "1000 mg · Öğün 2 sonrası"),
-    ("11:30", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 3'ten 30 dk önce"),
     ("12:00", "Y", "Öğün 3",             None),
     ("16:30", "Y", "Öğün 4",             None),
     ("20:00", "T", "Magnezyum + çinko",  "Yatmadan önce"),
