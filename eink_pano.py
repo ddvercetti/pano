@@ -82,24 +82,23 @@ else:
     from waveshare_epd import epd2in13_V2 as epd_mod
 
 # ===== BESLENME PLANI (diyetisyen) =====
-DAY_START = 5 * 60 + 15        # gün 05:15'te başlar (uyanış 05:30)
-WAKE, SLEEP = "05:30", "20:15"
+DAY_START = 5 * 60 + 45        # gün 05:45'te başlar (uyanış 06:00)
+WAKE, SLEEP = "06:00", "21:00"
 OFF_DAYS = (5, 6)              # Cmt, Paz → karbonhidrat yarı
-WATER_TIMES = ["05:30", "06:00", "06:30", "08:30", "09:30", "12:00", "14:30", "17:00"]  # 8 × 0,5 L = 4 L
+WATER_TIMES = ["06:00", "07:00", "08:30", "09:30", "11:00", "12:30", "15:00", "17:00"]  # 8 × 0,5 L = 4 L
 
 # (saat, tür, başlık, içerik)  — içerik None ise gün tipine göre hesaplanır
 ITEMS = [
-    ("05:30", "T", "Psyllium",           "Aç karnına, bol suyla"),
-    ("05:35", "T", "L-Karnitin",         "Antrenmandan önce"),
-    ("05:40", "T", "EAA + elektrolit",   "EAA 10 g · antrenman boyunca"),
-    ("06:00", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 1'den 30 dk önce"),
-    ("06:30", "Y", "Öğün 1",             None),
-    ("06:50", "T", "Öğün 1 sonrası",     "D3K2 · Kreatin 5 g · Prebiyotik"),
+    ("06:00", "T", "Psyllium",           "Aç karnına, bol suyla"),
+    ("06:10", "T", "Berberine + krom",   "Berberine 500 mg · Öğün 1'den 30 dk önce"),
+    ("06:40", "Y", "Öğün 1",             None),
+    ("07:00", "T", "Öğün 1 sonrası",     "D3K2 · Kreatin 5 g · Prebiyotik"),
     ("09:30", "Y", "Öğün 2",             None),
     ("09:50", "T", "Omega-3",            "1000 mg · Öğün 2 sonrası"),
     ("12:00", "Y", "Öğün 3",             None),
-    ("16:30", "Y", "Öğün 4",             None),
-    ("20:00", "T", "Magnezyum + çinko",  "Yatmadan önce"),
+    ("17:30", "Y", "Öğün 4",             None),
+    ("17:50", "T", "L-Karnitin",         "Yürüyüşten önce"),
+    ("20:45", "T", "Magnezyum + çinko",  "Yatmadan önce"),
 ]
 PRE, POST_T, POST_Y = 10, 20, 30     # "ŞİMDİ" penceresi (dk): takviye −10/+20, öğün −10/+30
 
@@ -131,7 +130,7 @@ def to_min(hhmm):
 
 
 def norm(m):
-    """Dakikayı gün-başlangıcı (05:15) eksenine çevir."""
+    """Dakikayı gün-başlangıcı (05:45) eksenine çevir."""
     return (m - DAY_START) % (24 * 60)
 
 

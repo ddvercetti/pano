@@ -152,14 +152,11 @@
 </div>
 
 <script>
-const BUILD = "20261103-2055";
+const BUILD = "20261104-1935";
 // ===== PLAN =====
 const SCHEDULE = [
-  { s:"05:30", n:"Uyanış & Hazırlık", c:"", d:"Su iç · tartı (aç karnına) · CP ölç: normal nefes ver, ilk nefes dürtüsüne kadar say (hedef 40 sn) · ışıkları aç" },
-  { s:"05:40", n:"Antrenman", c:"train", split:true },
-  { s:"06:10", n:"Soğuma & Esneme", c:"train", cool:true },
-  { s:"06:30", n:"Öğün 1", c:"meal" },
-  { s:"06:50", n:"Duş & Hazırlık", c:"" },
+  { s:"06:00", n:"Uyanış & Hazırlık", c:"", d:"Su iç · tartı (aç karnına) · CP ölç: normal nefes ver, ilk nefes dürtüsüne kadar say (hedef 40 sn) · ışıkları aç · kısa duş" },
+  { s:"06:40", n:"Öğün 1", c:"meal" },
   { s:"07:00", n:"Atölye 1'e Gidiş", c:"" },
   { s:"07:30", n:"İş — Atölye 1", c:"work" },
   { s:"09:30", n:"Öğün 2 · Mola", c:"meal" },
@@ -169,15 +166,15 @@ const SCHEDULE = [
   { s:"14:15", n:"Günü Kapat · Yarını Planla", c:"work", d:"Kağıda 3 madde: bugün biten · yarın ilk 3 iş · Sarayçık'ta sıradaki adım — sonra atölyeyi kapat" },
   { s:"14:30", n:"Eve Dönüş", c:"" },
   { s:"15:00", n:"Serbest / Dinlenme", c:"", d:"Ev · dinlenme, ekran az" },
-  { s:"16:30", n:"Öğün 4", c:"meal" },
-  { s:"17:00", n:"Tempolu Yürüyüş", c:"train", walk:true },
-  { s:"17:20", n:"Soğuk Duş / Buteyko Nefes", c:"", d:"2-3 dk soğuk su · ardından Buteyko 4-9-10 ×10 tur, oturarak, burundan (4 sn al · 9 sn ver · boş akciğerle 10 sn tut) — hafif hava açlığı hedef, baş dönmesi olursa dur" },
-  { s:"17:35", n:"Kitap Okuma", c:"yoga", d:"45 dk kitap · ekran yok" },
-  { s:"18:20", n:"Serbest / Tampon", c:"", d:"Ev · serbest — iş yok, ekran az, yemek yok" },
-  { s:"20:00", n:"Trataka Meditasyonu · Yatış", c:"", d:"Önce 4-7-8 ×4 (4 al · 7 tut · 8 ver) · sonra loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak · 2-3 dk gözler kapalı · yat" },
-  { s:"20:15", n:"UYKU", c:"sleep", d:"Karartma perdesi · 9 sa 15 dk" },
+  { s:"17:30", n:"Öğün 4", c:"meal" },
+  { s:"18:00", n:"Tempolu Yürüyüş · 20 dk", c:"train", d:"20 dk tempolu yürüyüş · nabız 110-130 · son öğünden sonra sindirime de iyi · günlük hedef 10.000 adım" },
+  { s:"18:20", n:"Soğuk Duş / Buteyko Nefes", c:"", d:"2-3 dk soğuk su · ardından Buteyko 4-9-10 ×10 tur, oturarak, burundan (4 sn al · 9 sn ver · boş akciğerle 10 sn tut) — hafif hava açlığı hedef, baş dönmesi olursa dur" },
+  { s:"18:35", n:"Kitap Okuma", c:"yoga", d:"45 dk kitap · ekran yok" },
+  { s:"19:20", n:"Serbest / Tampon", c:"", d:"Ev · serbest — iş yok, ekran az, yemek yok" },
+  { s:"20:45", n:"Trataka Meditasyonu · Yatış", c:"", d:"Önce 4-7-8 ×4 (4 al · 7 tut · 8 ver) · sonra loş oda, mum göz hizasında ~1 m · 10 dk gözler açık aleve bak · 2-3 dk gözler kapalı · yat" },
+  { s:"21:00", n:"UYKU", c:"sleep", d:"Karartma perdesi · 9 sa" },
 ];
-const WATER_TIMES = ["05:30","06:00","06:30","08:30","09:30","12:00","14:30","17:00"];  // 8 × 0,5 L
+const WATER_TIMES = ["06:00","07:00","08:30","09:30","11:00","12:30","15:00","17:00"];  // 8 × 0,5 L
 const PROGRAM = {
   1: { n:"İtiş · Göğüs/Omuz/Arka kol", d:"Isınma: arm + shoulder circles 3 tur · Incline bench 4×6-8 · Incline DB press 3×8-10 · DB fly 3×10-12 · Bench dips 3×10 · Lateral raise 4×12-15 · DB triceps ext 3×10 · Overhead DB ext 3×10 · Soğuma: göğüs esneme" },
   2: { n:"Çekiş · Sırt/Ön kol", d:"Isınma: pelvik tilt + cat cow · Pull up 3×8 · Barbell row 4×6-8 · DB row 3×10-12 (tek) · DB pullover 3×10-12 · Shrug 4×10-12 · EZ curl 4×8-10 · Hammer curl 4×10-12 · Soğuma: hamstring + omuz esneme" },
@@ -189,22 +186,21 @@ const PROGRAM = {
 };
 // [saat, tür (T=takviye, Y=yemek), başlık, içerik(null=öğün içeriği)]
 const ITEMS = [
-  ["05:30","T","Psyllium","1 servis + büyük bardak su · aç karnına, diğer takviyelerden ayrı"],
-  ["05:35","T","L-Karnitin","1 servis · antrenmandan önce"],
-  ["05:40","T","EAA + elektrolit","EAA 10 g + izotonik elektrolit 1 ölçek · antrenman boyunca"],
-  ["06:00","T","Berberine + krom","Berberine 500 mg + krom pikolinat · Öğün 1'den 30 dk önce"],
-  ["06:30","Y","Öğün 1",null],
-  ["06:50","T","Öğün 1 sonrası","D3K2 4000 IU · Kreatin 5 g · Prebiyotik"],
+  ["06:00","T","Psyllium","1 servis + büyük bardak su · aç karnına, diğer takviyelerden ayrı"],
+  ["06:10","T","Berberine + krom","Berberine 500 mg + krom pikolinat · Öğün 1'den 30 dk önce"],
+  ["06:40","Y","Öğün 1",null],
+  ["07:00","T","Öğün 1 sonrası","D3K2 4000 IU · Kreatin 5 g · Prebiyotik"],
   ["09:30","Y","Öğün 2",null],
   ["09:50","T","Omega-3","Omega-3 1000 mg · Öğün 2 sonrası"],
   ["12:00","Y","Öğün 3",null],
-  ["16:30","Y","Öğün 4",null],
-  ["20:00","T","Magnezyum + çinko","Magnezyum 250 mg · Çinko bisglisinat 40 mg · yatmadan önce"],
+  ["17:30","Y","Öğün 4",null],
+  ["17:50","T","L-Karnitin","1 servis · yürüyüşten önce"],
+  ["20:45","T","Magnezyum + çinko","Magnezyum 250 mg · Çinko bisglisinat 40 mg · yatmadan önce"],
 ];
 const PRE = 10, POST = { T:20, Y:30 };
 const ZONE2_DAYS = [3, 6];   // Çar, Cmt → 60 dk Zone 2
 const REST_DAYS = [0];        // Paz → tam dinlenme   // JS getDay(): Paz=0, Per=4
-const DAY_START = 330;   // gün 05:30
+const DAY_START = 360;   // gün 06:00
 const DAYS = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
 const MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 
@@ -276,7 +272,7 @@ function render(){
   if (st.sleeping){
     document.getElementById("nClock").textContent = `${hh}:${mm}`;
     const h=Math.floor(st.wait/60), m2=st.wait%60;
-    document.getElementById("nInfo").textContent = `Uyanış 05:30 · ${h} sa ${m2} dk`;
+    document.getElementById("nInfo").textContent = `Uyanış 06:00 · ${h} sa ${m2} dk`;
     return;
   }
 
